@@ -6,11 +6,14 @@ import { isGpt5CodexPreviewEnabled, GPT5_CODEX_LABEL } from "@/lib/flags";
 export default function UIOverlay() {
   const hoveredName = useGalaxyStore((s) => s.hoveredName);
   const pointer = useGalaxyStore((s) => s.pointer);
+  const selectedPlanet = useGalaxyStore((s) => s.selectedPlanet);
+  const returnToOverview = useGalaxyStore((s) => s.returnToOverview);
   const previewEnabled = isGpt5CodexPreviewEnabled();
 
   const isHovering = Boolean(hoveredName);
 
   return (
+  <>
   <div className="absolute inset-0 pointer-events-none">
       {/* Center title with brightness animation */}
       <motion.div
@@ -104,7 +107,27 @@ export default function UIOverlay() {
         </motion.div>
       )}
 
-      {/* Global preview badge */}
+    </div>
+
+    {/* Clickable controls layer (does not block whole screen) */}
+    <div className="pointer-events-none">
+      {/* Back to Galaxy button - centered bottom */}
+      <motion.div
+        className="fixed left-1/2 -translate-x-1/2 bottom-12 z-20"
+        initial={{ opacity: 0, y: 8 }}
+        animate={selectedPlanet ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
+        style={{ pointerEvents: selectedPlanet ? 'auto' : 'none' }}
+      >
+        <button
+          onClick={() => returnToOverview?.()}
+          className="pointer-events-auto px-5 py-2 rounded-full border border-[#2a2a2a] bg-black/70 text-[#f3c77b] backdrop-blur-md font-medium shadow-[0_0_24px_rgba(243,199,123,0.25)] hover:shadow-[0_0_36px_rgba(243,199,123,0.35)] transition"
+        >
+          ← Back to Galaxy
+        </button>
+      </motion.div>
+
+      {/* Global preview badge (clickable) */}
       {previewEnabled && (
         <div className="fixed left-4 bottom-4 z-20 pointer-events-auto">
           <div className="flex items-center gap-2 rounded-full border border-[#2a2a2a] bg-black/70 px-3 py-1.5 shadow-[0_0_18px_rgba(243,199,123,0.25)]">
@@ -116,5 +139,6 @@ export default function UIOverlay() {
         </div>
       )}
     </div>
+  </>
   );
 }

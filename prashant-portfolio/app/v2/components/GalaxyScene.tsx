@@ -47,7 +47,7 @@ function CinematicRotatingStars(props: React.ComponentProps<typeof Stars> & { sp
 }
 
 // Orbit ring (trail) around origin in the XZ plane, positioned at given y
-// Dynamic Orbit Plane with 3D tilt and animated ring
+// Stable Orbit Plane with 3D tilt (no breathing/rotation on the ring)
 function DynamicOrbitPlane({ 
   radius, 
   color = "#f3c77b", 
@@ -64,9 +64,7 @@ function DynamicOrbitPlane({
   tiltZ?: number; 
 }) {
   const orbitGroupRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Group>(null);
-  const tRef = useRef<number>(0);
-  
+
   const points = useMemo(() => {
     const pts: THREE.Vector3[] = [];
     // Create circular orbit points
@@ -80,54 +78,41 @@ function DynamicOrbitPlane({
     }
     return pts;
   }, [radius, segments]);
-  
-  useFrame((_, delta) => {
-    tRef.current += delta;
-    
-    // Apply 3D tilt rotations to the orbit plane
-    if (orbitGroupRef.current) {
-      orbitGroupRef.current.rotation.x = (tiltX * Math.PI) / 180;
-      orbitGroupRef.current.rotation.y = (tiltY * Math.PI) / 180;
-      orbitGroupRef.current.rotation.z = (tiltZ * Math.PI) / 180;
-    }
-    
-    // Subtle ring animation within the tilted plane
-    if (ringRef.current) {
-      ringRef.current.rotation.y += 0.0003;
-      // Gentle breathing effect
-      const breathe = 1.0 + Math.sin(tRef.current * 0.8) * 0.1;
-      ringRef.current.scale.setScalar(breathe);
-    }
-  });
+
+  // Apply static tilt to the orbit plane when props change
+  React.useEffect(() => {
+    if (!orbitGroupRef.current) return;
+    orbitGroupRef.current.rotation.x = (tiltX * Math.PI) / 180;
+    orbitGroupRef.current.rotation.y = (tiltY * Math.PI) / 180;
+    orbitGroupRef.current.rotation.z = (tiltZ * Math.PI) / 180;
+  }, [tiltX, tiltY, tiltZ]);
   
   return (
     <group ref={orbitGroupRef}>
-      <group ref={ringRef}>
-        {/* Main orbit ring */}
-        <Line
-          points={points}
-          color={color}
-          lineWidth={2.5}
-          transparent
-          opacity={0.35}
-        />
-        {/* Inner subtle ring */}
-        <Line
-          points={points.map(p => p.clone().multiplyScalar(0.98))}
-          color={color}
-          lineWidth={1.5}
-          transparent
-          opacity={0.2}
-        />
-        {/* Outer glow ring */}
-        <Line
-          points={points.map(p => p.clone().multiplyScalar(1.02))}
-          color={color}
-          lineWidth={1}
-          transparent
-          opacity={0.15}
-        />
-      </group>
+      {/* Main orbit ring */}
+      <Line
+        points={points}
+        color={color}
+        lineWidth={2.5}
+        transparent
+        opacity={0.35}
+      />
+      {/* Inner subtle ring */}
+      <Line
+        points={points.map(p => p.clone().multiplyScalar(0.98))}
+        color={color}
+        lineWidth={1.5}
+        transparent
+        opacity={0.2}
+      />
+      {/* Outer glow ring */}
+      <Line
+        points={points.map(p => p.clone().multiplyScalar(1.02))}
+        color={color}
+        lineWidth={1}
+        transparent
+        opacity={0.15}
+      />
     </group>
   );
 }
@@ -137,6 +122,7 @@ function OrbitingPlanet({
   planetConfig, 
   size, 
   glowBoost,
+  scaleTarget,
   onHover,
   onMove,
   onLeave,
@@ -156,6 +142,7 @@ function OrbitingPlanet({
   };
   size: number;
   glowBoost: number;
+  scaleTarget: number;
   onHover: (e: React.PointerEvent) => void;
   onMove: (e: React.PointerEvent) => void;
   onLeave: (e: React.PointerEvent) => void;
@@ -198,6 +185,7 @@ function OrbitingPlanet({
           color={planetConfig.color}
           size={size}
           glowBoost={glowBoost}
+          scaleTarget={scaleTarget}
         >
           {children}
         </Planet>
@@ -516,18 +504,22 @@ export default function GalaxyScene() {
     "Uranus": { description: "Unconventional solutions rotating on a unique axis. The innovator's edge.", years: "Revolutionary thinking" },
   };
   // OrbitControls enablement after intro
-  const [controlsEnabled, setControlsEnabled] = React.useState(false);
+  const [, setControlsEnabled] = React.useState(false);
   // Auto-framing cinematic camera with intelligent behavior
   function CameraDriftZoom() {
     const { camera, size } = useThree();
     const driftRadius = 2.5;  // Mouse interaction sensitivity
-    const lerpSpeed = 0.04;   // Smooth interpolation speed
+  // const lerpSpeed = 0.04;   // Smooth interpolation speed (not used; camera is locked when not focusing)
     const mouse = useRef({ x: 0, y: 0 });
     const time = useRef(0);
     const lastMouseMove = useRef(0);
-    const idleRotation = useRef(0);
+  // const idleRotation = useRef(0); // idle drift disabled per requirements
     const entryTime = useRef(0);
-    const hasSettled = useRef(false);
+  const hasSettled = useRef(false);
+  const isReturning = useGalaxyStore((s) => s.isReturning);
+  const completeReturn = useGalaxyStore((s) => s.completeReturn);
+  const returnStart = useRef<THREE.Vector3 | null>(null);
+  const returnTimer = useRef(0);
     
     // Calculate optimal camera distance for full system framing
     const systemBounds = useMemo(() => {
@@ -571,8 +563,9 @@ export default function GalaxyScene() {
       entryTime.current += delta;
       
       // Check if user is idle (no mouse movement for 3 seconds)
-      const isIdle = Date.now() - lastMouseMove.current > 3000;
-      const isHoveringPlanet = hoveredName !== null;
+  // Hover/mouse input should not affect camera; keep for future use if needed
+  // const isIdle = Date.now() - lastMouseMove.current > 3000;
+  // const isHoveringPlanet = hoveredName !== null;
       
   // Cinematic intro animation (~3.5s gentle glide)
   const entryDuration = 3.5;
@@ -603,11 +596,39 @@ export default function GalaxyScene() {
         // Mark as settled when entry completes
         if (progress >= 1 && !hasSettled.current) {
           hasSettled.current = true;
-          // Enable OrbitControls after intro
-          setControlsEnabled(true);
+          // Keep interactions disabled per requirements
+          setControlsEnabled(false);
         }
         
         return; // Skip other camera behaviors during entry
+      }
+
+      // Handle smooth return to overview when user clicks Back
+      if (isReturning && !planetConfig) {
+        if (!returnStart.current) {
+          returnStart.current = camera.position.clone();
+          returnTimer.current = 0;
+        }
+        const returnDuration = 1.8;
+        returnTimer.current += delta;
+        const rProgress = Math.min(returnTimer.current / returnDuration, 1);
+        const easeOut = 1 - Math.pow(1 - rProgress, 3);
+        const start = returnStart.current;
+        const end = new THREE.Vector3(
+          systemBounds.finalPosition[0],
+          systemBounds.finalPosition[1],
+          systemBounds.finalPosition[2]
+        );
+        const current = start.clone().lerp(end, easeOut);
+        camera.position.copy(current);
+        target.current.set(0, -2, 0);
+        camera.lookAt(target.current);
+        if (rProgress >= 1) {
+          hasSettled.current = true;
+          returnStart.current = null;
+          completeReturn();
+        }
+        return;
       }
 
       // After intro finishes and no planet is selected, lock position and let OrbitControls handle interaction
@@ -618,79 +639,43 @@ export default function GalaxyScene() {
       }
       
       if (planetConfig) {
-        // Zoom to planet: move camera to planet's orbit position with 3D tilt
+        // Disable OrbitControls while focusing to avoid conflict
+        setControlsEnabled(false);
+
+        // Focus: move camera toward the selected planet at a fixed offset distance
+        // Compute the planet's world position in its tilted orbit plane (using its initialAngle as reference)
         const angle = planetConfig.initialAngle;
-        
-        // Create transformation matrix for 3D orbit tilt
+
         const rotMatrix = new THREE.Matrix4()
           .makeRotationX((planetConfig.orbitTiltX * Math.PI) / 180)
           .multiply(new THREE.Matrix4().makeRotationY((planetConfig.orbitTiltY * Math.PI) / 180))
           .multiply(new THREE.Matrix4().makeRotationZ((planetConfig.orbitTiltZ * Math.PI) / 180));
-        
-        const vec = new THREE.Vector3(
-          Math.cos(angle) * planetConfig.orbitRadius, 
-          0, 
+
+        const planetPos = new THREE.Vector3(
+          Math.cos(angle) * planetConfig.orbitRadius,
+          0,
           Math.sin(angle) * planetConfig.orbitRadius
-        );
-        vec.applyMatrix4(rotMatrix);
-        
-        desired.current.set(vec.x * 1.05, vec.y + 2.0, vec.z * 1.05 + 2.5);
-        camera.position.lerp(desired.current, 0.08);
-        camera.lookAt(vec);
-      } else {
-        // Cinematic overview with intelligent idle drift motion
-        
-        // Base camera orbit - always active but intensity varies
-        const baseOrbitSpeed = 0.008; // Reduced from 0.02 for subtlety
-        const orbitRotation = time.current * baseOrbitSpeed;
-        
-        // Idle drift motion - only after settling, slow rotation around system center
-        if (isIdle && !isHoveringPlanet && hasSettled.current) {
-          // Enable full idle drift when user is not interacting and system has settled
-          idleRotation.current += delta * 0.005; // Very slow rotation (0.005 radians per frame)
-          
-          // Use optimal distance from auto-framing calculation
-          const idleRadius = systemBounds.optimalDistance * 0.8; 
-          const idleX = Math.cos(idleRotation.current) * idleRadius;
-          const idleZ = Math.sin(idleRotation.current) * idleRadius;
-          
-          // Add gentle vertical oscillation for floating effect
-          const floatY = 12 + Math.sin(time.current * 0.3) * 2.5; // Slower, more pronounced floating
-          const floatX = idleX + Math.cos(time.current * 0.2) * 1.5; // Subtle X drift
-          const floatZ = idleZ + Math.sin(time.current * 0.25) * 1.0; // Subtle Z drift
-          
-          desired.current.set(floatX, floatY, floatZ);
-        } else {
-          // User is active or hovering - reduce idle motion, prioritize interaction
-          const interactionInfluence = isHoveringPlanet ? 0.1 : (isIdle ? 0.8 : 0.3);
-          
-          // Blend idle rotation with interaction
-          idleRotation.current += delta * 0.002 * interactionInfluence; // Slower when interacting
-          
-          // Base position using optimal framing distance with reduced idle influence
-          const optimalZ = hasSettled.current ? systemBounds.optimalDistance : 25;
-          const baseX = 8 + Math.cos(orbitRotation) * 3;
-          const baseZ = optimalZ + Math.sin(orbitRotation) * 2;
-          const baseY = 12 + Math.sin(time.current * 0.015) * 1.5;
-          
-          // Add subtle idle rotation influence
-          const idleInfluenceX = Math.cos(idleRotation.current) * 2 * interactionInfluence;
-          const idleInfluenceZ = Math.sin(idleRotation.current) * 1 * interactionInfluence;
-          
-          desired.current.set(
-            baseX + mouse.current.x + idleInfluenceX, 
-            baseY + mouse.current.y * 0.5, 
-            baseZ + idleInfluenceZ
-          );
-        }
-        
-        camera.position.lerp(desired.current, lerpSpeed);
-        
-        // Dynamic look target with subtle drift
-        const lookOffsetX = Math.sin(time.current * 0.1) * 0.5;
-        const lookOffsetY = -2 + Math.cos(time.current * 0.08) * 0.3;
-        target.current.set(lookOffsetX, lookOffsetY, 0);
-        camera.lookAt(target.current);
+        ).applyMatrix4(rotMatrix);
+
+        // Desired distance so planet fills ~70% of vertical FOV, clamped between 5 and 8 units
+        // Guard for camera type: use PerspectiveCamera FOV when available, fallback to 55deg
+        const fovRad = camera instanceof THREE.PerspectiveCamera
+          ? THREE.MathUtils.degToRad(camera.fov)
+          : THREE.MathUtils.degToRad(55);
+        const desiredFill = 0.7; // 70%
+        const idealDist = planetConfig.size / (desiredFill * Math.tan(fovRad / 2));
+        const focusDist = THREE.MathUtils.clamp(idealDist, 5, 8);
+
+        // Move the camera along the direction from camera to planet by the fixed focus distance
+        const toPlanetDir = camera.position.clone().sub(planetPos).normalize();
+        const yOffset = planetConfig.size * 0.6; // slight elevation for pleasing framing
+        const targetCamPos = planetPos
+          .clone()
+          .add(toPlanetDir.multiplyScalar(focusDist));
+        targetCamPos.y += yOffset;
+
+        camera.position.lerp(targetCamPos, 0.12);
+        camera.lookAt(planetPos);
       }
     });
     return null;
@@ -842,10 +827,11 @@ export default function GalaxyScene() {
 
       {/* Dynamic Orbit Planes + Planets with Cinematic Fade */}
       {planets.map((p, index) => {
-        const isHovered = hoveredName === p.name;
-        const isSelected = selectedPlanet === p.name;
-        const size = p.size * (isHovered || isSelected ? 1.18 : 1);
-        const glowBoost = isHovered || isSelected ? 0.3 : 0;
+  const isHovered = hoveredName === p.name;
+  const isSelected = selectedPlanet === p.name;
+  const size = p.size; // keep geometry size stable; use smooth scale for hover highlight
+  const scaleTarget = isHovered ? 1.05 : 1;
+  const glowBoost = isHovered ? 0.25 : 0; // soft emissive boost on hover only
         
         return (
           <PlanetFadeGroup key={p.name} delay={index * 0.15}>
@@ -863,6 +849,7 @@ export default function GalaxyScene() {
             <OrbitingPlanet
               planetConfig={p}
               size={size}
+              scaleTarget={scaleTarget}
               glowBoost={glowBoost}
               onHover={(e) => {
                 e.stopPropagation();
@@ -923,10 +910,12 @@ export default function GalaxyScene() {
   {/* Camera intro controller; OrbitControls takes over after intro */}
   <CameraDriftZoom />
   <OrbitControls
-    enabled={controlsEnabled}
+    enabled={false}
     makeDefault
-    enableDamping
-    dampingFactor={0.08}
+    enableDamping={false}
+    enableZoom={false}
+    enablePan={false}
+    enableRotate={false}
     minDistance={10}
     maxDistance={60}
     target={[0, -2, 0]}

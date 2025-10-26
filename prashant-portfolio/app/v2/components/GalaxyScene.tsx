@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Stars, Line, Html } from "@react-three/drei";
+import { Stars, Line, Html, OrbitControls } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import Planet from "./Planet";
@@ -515,6 +515,8 @@ export default function GalaxyScene() {
     "Saturn": { description: "Structured frameworks with elegant dependency rings. The architect's crown jewel.", years: "System mastery" },
     "Uranus": { description: "Unconventional solutions rotating on a unique axis. The innovator's edge.", years: "Revolutionary thinking" },
   };
+  // OrbitControls enablement after intro
+  const [controlsEnabled, setControlsEnabled] = React.useState(false);
   // Auto-framing cinematic camera with intelligent behavior
   function CameraDriftZoom() {
     const { camera, size } = useThree();
@@ -545,8 +547,8 @@ export default function GalaxyScene() {
       return {
         boundingRadius,
         optimalDistance: optimalDistance * 1.2, // Add 20% margin for aesthetic framing
-        entryPosition: [8, 12, 100], // Start from deep space for cinematic reveal
-        finalPosition: [8, 12, optimalDistance * 1.2]
+        entryPosition: [8, 12, 30], // Start comfortably far
+        finalPosition: [8, 12, 15] // Glide to a closer cinematic view
       };
     }, []);
     
@@ -572,8 +574,8 @@ export default function GalaxyScene() {
       const isIdle = Date.now() - lastMouseMove.current > 3000;
       const isHoveringPlanet = hoveredName !== null;
       
-      // Cinematic intro animation (first 6 seconds for dramatic reveal)
-      const entryDuration = 6.0;
+  // Cinematic intro animation (~3.5s gentle glide)
+  const entryDuration = 3.5;
       const isInEntry = entryTime.current < entryDuration;
       
       if (isInEntry && !planetConfig) {
@@ -583,16 +585,16 @@ export default function GalaxyScene() {
         // Smooth easing function (ease-out cubic)
         const easeOut = 1 - Math.pow(1 - progress, 3);
         
-        // Interpolate from entry position to optimal framing position
+  // Interpolate from entry position to final framing position
         const startPos = systemBounds.entryPosition;
         const endPos = systemBounds.finalPosition;
         
-        const currentX = startPos[0] + (endPos[0] - startPos[0]) * easeOut;
-        const currentY = startPos[1] + (endPos[1] - startPos[1]) * easeOut;
-        const currentZ = startPos[2] + (endPos[2] - startPos[2]) * easeOut;
+  const currentX = THREE.MathUtils.lerp(startPos[0], endPos[0], easeOut);
+  const currentY = THREE.MathUtils.lerp(startPos[1], endPos[1], easeOut);
+  const currentZ = THREE.MathUtils.lerp(startPos[2], endPos[2], easeOut);
         
-        desired.current.set(currentX, currentY, currentZ);
-        camera.position.lerp(desired.current, 0.08); // Faster lerp for entry
+  desired.current.set(currentX, currentY, currentZ);
+  camera.position.lerp(desired.current, 0.12); // Smooth glide
         
         // Look at system center during entry
         target.current.set(0, -2, 0);
@@ -601,9 +603,18 @@ export default function GalaxyScene() {
         // Mark as settled when entry completes
         if (progress >= 1 && !hasSettled.current) {
           hasSettled.current = true;
+          // Enable OrbitControls after intro
+          setControlsEnabled(true);
         }
         
         return; // Skip other camera behaviors during entry
+      }
+
+      // After intro finishes and no planet is selected, lock position and let OrbitControls handle interaction
+      if (hasSettled.current && !planetConfig) {
+        target.current.set(0, -2, 0);
+        camera.lookAt(target.current);
+        return;
       }
       
       if (planetConfig) {
@@ -774,7 +785,7 @@ export default function GalaxyScene() {
     const hoveredName = useGalaxyStore((s) => s.hoveredName);
 
   return (
-    <Canvas camera={{ position: [8, 12, 100], fov: 55 }}>
+    <Canvas camera={{ position: [8, 12, 30], fov: 55 }}>
       <color attach="background" args={["#000208"]} />
       
       {/* Cinematic depth gradient background */}
@@ -909,8 +920,17 @@ export default function GalaxyScene() {
           </PlanetFadeGroup>
         );
       })}
-  {/* Camera drift and zoom to planet */}
+  {/* Camera intro controller; OrbitControls takes over after intro */}
   <CameraDriftZoom />
+  <OrbitControls
+    enabled={controlsEnabled}
+    makeDefault
+    enableDamping
+    dampingFactor={0.08}
+    minDistance={10}
+    maxDistance={60}
+    target={[0, -2, 0]}
+  />
 
       {/* Cinematic bloom effect for spectacular glowing visuals */}
       <EffectComposer>

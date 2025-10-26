@@ -1,15 +1,17 @@
 "use client";
 import { motion } from "framer-motion";
 import { useGalaxyStore } from "../state/galaxyStore";
+import { isGpt5CodexPreviewEnabled, GPT5_CODEX_LABEL } from "@/lib/flags";
 
 export default function UIOverlay() {
   const hoveredName = useGalaxyStore((s) => s.hoveredName);
   const pointer = useGalaxyStore((s) => s.pointer);
+  const previewEnabled = isGpt5CodexPreviewEnabled();
 
   const isHovering = Boolean(hoveredName);
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+  <div className="absolute inset-0 pointer-events-none">
       {/* Center title with brightness animation */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -100,6 +102,18 @@ export default function UIOverlay() {
             <div className="text-sm text-gray-200">{hoveredName}</div>
           </div>
         </motion.div>
+      )}
+
+      {/* Global preview badge */}
+      {previewEnabled && (
+        <div className="fixed left-4 bottom-4 z-20 pointer-events-auto">
+          <div className="flex items-center gap-2 rounded-full border border-[#2a2a2a] bg-black/70 px-3 py-1.5 shadow-[0_0_18px_rgba(243,199,123,0.25)]">
+            <span className="inline-block h-2 w-2 rounded-full bg-[#f3c77b] animate-pulse" />
+            <span className="text-xs font-medium text-[#f3c77b]">
+              {GPT5_CODEX_LABEL}
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );

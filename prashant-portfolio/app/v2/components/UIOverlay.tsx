@@ -25,7 +25,7 @@ export default function UIOverlay() {
           transition={{ type: "spring", stiffness: 140, damping: 16 }}
           className="text-5xl md:text-7xl font-semibold text-[#f3c77b]"
         >
-          Prashant Rajendra Naikar
+          {/* Prashant Rajendra Naikar */}
         </motion.h1>
         {/* Floating glowing button */}
         <motion.button

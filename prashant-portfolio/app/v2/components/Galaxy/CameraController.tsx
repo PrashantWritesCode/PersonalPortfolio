@@ -11,6 +11,7 @@ export default function CameraController() {
   const selectedPlanet = useGalaxyStore((s) => s.selectedPlanet);
   const isReturning = useGalaxyStore((s) => s.isReturning);
   const completeReturn = useGalaxyStore((s) => s.completeReturn);
+  const planetRefs = useGalaxyStore((s) => s.planetRefs);
 
   const entryTime = useRef(0);
   const hasSettled = useRef(false);
@@ -61,32 +62,44 @@ export default function CameraController() {
       return;
     }
 
-    // Focus selected planet
+    // Focus selected planet (live follow using registered refs)
     if (selectedPlanet) {
       const p = PLANETS.find((pp) => pp.name === selectedPlanet);
       if (!p) return;
-      const angle = p.initialAngle;
-      const planetPos = new THREE.Vector3(
-        Math.cos(angle) * p.orbitRadius,
-        0,
-        Math.sin(angle) * p.orbitRadius
-      );
-      // tilt
-      const rot = new THREE.Euler(
-        (p.orbitTiltX * Math.PI) / 180,
-        (p.orbitTiltY * Math.PI) / 180,
-        (p.orbitTiltZ * Math.PI) / 180
-      );
-      planetPos.applyEuler(rot);
+
+      const ref = planetRefs[selectedPlanet];
+  const planetPos = new THREE.Vector3();
+
+      if (ref) {
+        ref.getWorldPosition(planetPos);
+      } else {
+        // Fallback to computed position if ref missing
+        const angle = p.initialAngle;
+        planetPos.set(
+          Math.cos(angle) * p.orbitRadius,
+          0,
+          Math.sin(angle) * p.orbitRadius
+        );
+        const rot = new THREE.Euler(
+          (p.orbitTiltX * Math.PI) / 180,
+          (p.orbitTiltY * Math.PI) / 180,
+          (p.orbitTiltZ * Math.PI) / 180
+        );
+        planetPos.applyEuler(rot);
+      }
 
       const fovDeg = camera instanceof THREE.PerspectiveCamera ? camera.fov : SYSTEM.optimalDistanceFovDeg;
       const ideal = fovToDistance(p.size, fovDeg, 0.7);
       const focusDist = THREE.MathUtils.clamp(ideal, 5, 8);
 
-      const dir = camera.position.clone().sub(planetPos).normalize();
+      // Keep relative direction from current cam to planet to maintain approach angle while following
+      const dir = camera.position.clone().sub(planetPos);
+      if (dir.lengthSq() < 1e-6) dir.set(1, 0, 1);
+      dir.normalize();
       const yOffset = p.size * 0.6;
       const targetCam = planetPos.clone().add(dir.multiplyScalar(focusDist));
       targetCam.y += yOffset;
+
       camera.position.lerp(targetCam, 0.12);
       camera.lookAt(planetPos);
       return;

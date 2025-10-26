@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Stars, Line, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -47,6 +47,7 @@ function OrbitingPlanet({
   const planetGroupRef = useRef<THREE.Group>(null);
   const angleRef = useRef<number>(cfg.initialAngle);
   const selectPlanet = useGalaxyStore((s) => s.selectPlanet);
+  const registerPlanetRef = useGalaxyStore((s) => s.registerPlanetRef);
   const setHovered = useGalaxyStore((s) => s.setHovered);
   const clearHovered = useGalaxyStore((s) => s.clearHovered);
   const setPointer = useGalaxyStore((s) => s.setPointer);
@@ -64,6 +65,12 @@ function OrbitingPlanet({
       planetGroupRef.current.position.set(x, 0, z);
     }
   });
+
+  // Register this planet's group for camera tracking in the store
+  useEffect(() => {
+    registerPlanetRef(cfg.name, planetGroupRef.current);
+    return () => registerPlanetRef(cfg.name, null);
+  }, [cfg.name, registerPlanetRef]);
 
   const scaleTarget = isHovered ? 1.05 : 1;
   const glowBoost = isHovered ? 0.25 : 0;

@@ -144,6 +144,7 @@ export default function SolarSystem() {
 function Sun() {
   const coreRef = useRef<THREE.Mesh>(null);
   const coronaRef = useRef<THREE.Mesh>(null);
+  const particlesRef = useRef<THREE.Group>(null);
   const lightRef = useRef<THREE.PointLight>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
   const t = useRef(0);
@@ -159,6 +160,19 @@ function Sun() {
     if (coronaRef.current) {
       const s = 1 + 0.02 * Math.sin(t.current * 0.9);
       coronaRef.current.scale.setScalar(s);
+    }
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y += 0.003; // slow orbital drift
+      particlesRef.current.children.forEach((child: THREE.Object3D) => {
+        const pts = child as THREE.Points;
+        type UD = { baseOpacity: number; phase: number };
+        const mat = pts.material as THREE.PointsMaterial & { userData: UD };
+        if (mat && mat.userData) {
+          const base = mat.userData.baseOpacity;
+          const phase = mat.userData.phase;
+          mat.opacity = THREE.MathUtils.clamp(base + 0.05 * Math.sin(t.current * 0.6 + phase), 0.04, 0.22);
+        }
+      });
     }
   });
 
@@ -189,6 +203,12 @@ function Sun() {
         />
       </mesh>
 
+      {/* Particle corona using PointsMaterial - small golden points with slow orbit and subtle opacity breathing */}
+      <group ref={particlesRef}>
+        <CoronaPoints radius={radius} innerScale={1.15} outerScale={1.35} count={600} size={0.028} color="#f3c77b" baseOpacity={0.09} phase={0.8} />
+        <CoronaPoints radius={radius} innerScale={1.25} outerScale={1.5} count={800} size={0.035} color="#d49a43" baseOpacity={0.12} phase={0.0} />
+      </group>
+
       {/* Warm point light at core and soft ambient provided above */}
       <pointLight
         ref={lightRef}
@@ -200,4 +220,61 @@ function Sun() {
       />
     </group>
   );
+}
+
+function CoronaPoints({
+  radius,
+  innerScale,
+  outerScale,
+  count,
+  size,
+  color,
+  baseOpacity,
+  phase,
+}: {
+  radius: number;
+  innerScale: number;
+  outerScale: number;
+  count: number;
+  size: number;
+  color: string;
+  baseOpacity: number;
+  phase: number;
+}) {
+  const geometry = React.useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    // Deterministic PRNG to keep render pure
+    let seed = 1234567;
+    const rnd = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const a = rnd() * Math.PI * 2;
+      const r = radius * (innerScale + rnd() * (outerScale - innerScale));
+      const y = (rnd() - 0.5) * (radius * 0.08); // slight vertical jitter
+      positions[i * 3 + 0] = Math.cos(a) * r;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = Math.sin(a) * r;
+    }
+    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    return g;
+  }, [radius, innerScale, outerScale, count]);
+
+  const material = React.useMemo(() => {
+    const m = new THREE.PointsMaterial({
+      color,
+      size,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: baseOpacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    (m as unknown as THREE.PointsMaterial & { userData: { baseOpacity: number; phase: number } }).userData = { baseOpacity, phase };
+    return m;
+  }, [color, size, baseOpacity, phase]);
+
+  return <points geometry={geometry} material={material} />;
 }

@@ -6,16 +6,20 @@ import * as THREE from "three";
 
 /**
  * Animated starfield that rotates slowly using useFrame
- * to ensure stars remain live when postprocessing is enabled
+ * to ensure stars remain live when postprocessing is enabled.
+ * Enhanced with gentle parallax shimmer for a "breathing galaxy" effect.
  */
 export default function AnimatedStarfield() {
   const groupRef = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (groupRef.current) {
-      // Slow rotation to keep stars feeling alive
-      groupRef.current.rotation.y += delta * 0.002;
-      groupRef.current.rotation.x += delta * 0.0005;
+      // Increased rotation speed for perceptible drift (visible within 5s)
+      groupRef.current.rotation.y += delta * 0.007;
+
+      // Slow oscillation on X and Z for parallax shimmer (breathing effect)
+      groupRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.1) * 0.05;
+      groupRef.current.rotation.z = Math.cos(clock.elapsedTime * 0.07) * 0.05;
     }
   });
 

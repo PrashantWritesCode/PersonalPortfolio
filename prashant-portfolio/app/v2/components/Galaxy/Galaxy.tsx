@@ -15,12 +15,14 @@ const Galaxy = () => {
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black text-white">
       <Canvas camera={{ position: [8, 12, 30], fov: 55 }}>
-        <color attach="background" args={["#000208"]} />
+        {/* Deep space background - adjusted to complement Sun */}
+        <color attach="background" args={["#02020a"]} />
+        <fogExp2 attach="fog" args={["#0a0a15", 0.0015]} />
 
-        {/* Background gradient plane */}
-        <mesh position={[0, 0, -80]} scale={[120, 120, 1]}>
+        {/* Background gradient plane - subtle depth */}
+        <mesh position={[0, 0, -80]} scale={[120, 120, 1]} renderOrder={-3}>
           <planeGeometry args={[1, 1]} />
-          <meshBasicMaterial color="#0a0a1a" transparent opacity={0.4} />
+          <meshBasicMaterial color="#0a0a1a" transparent opacity={0.3} depthWrite={false} />
         </mesh>
 
         {/* Animated elements wrapped in Suspense to avoid blocking */}

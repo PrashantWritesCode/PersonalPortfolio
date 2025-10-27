@@ -17,6 +17,7 @@ export default function CameraController() {
   const hasSettled = useRef(false);
   const returnStart = useRef<THREE.Vector3 | null>(null);
   const returnTimer = useRef(0);
+  const cameraOrbitAngle = useRef(0); // slow orbit angle around focused planet
 
   // Precomputed in constants; keeping logic here if later needed
 
@@ -62,7 +63,7 @@ export default function CameraController() {
       return;
     }
 
-    // Focus selected planet (live follow using registered refs)
+    // Focus selected planet (live follow + slow circular orbit around planet)
     if (selectedPlanet) {
       const p = PLANETS.find((pp) => pp.name === selectedPlanet);
       if (!p) return;
@@ -90,17 +91,19 @@ export default function CameraController() {
 
       const fovDeg = camera instanceof THREE.PerspectiveCamera ? camera.fov : SYSTEM.optimalDistanceFovDeg;
       const ideal = fovToDistance(p.size, fovDeg, 0.7);
-      const focusDist = THREE.MathUtils.clamp(ideal, 5, 8);
+      const orbitRadius = THREE.MathUtils.clamp(ideal, 5, 8); // fixed radius (zoom distance)
 
-      // Keep relative direction from current cam to planet to maintain approach angle while following
-      const dir = camera.position.clone().sub(planetPos);
-      if (dir.lengthSq() < 1e-6) dir.set(1, 0, 1);
-      dir.normalize();
-      const yOffset = p.size * 0.6;
-      const targetCam = planetPos.clone().add(dir.multiplyScalar(focusDist));
-      targetCam.y += yOffset;
+      // advance orbit very slowly to avoid dizziness
+      const speed = 0.007; // rad/sec (between 0.005–0.01)
+      cameraOrbitAngle.current += delta * speed;
 
-      camera.position.lerp(targetCam, 0.12);
+      const targetCam = new THREE.Vector3(
+        planetPos.x + Math.cos(cameraOrbitAngle.current) * orbitRadius,
+        planetPos.y + 1.5,
+        planetPos.z + Math.sin(cameraOrbitAngle.current) * orbitRadius
+      );
+
+      camera.position.lerp(targetCam, 0.05);
       camera.lookAt(planetPos);
       return;
     }

@@ -1,10 +1,11 @@
 "use client";
 import React, { useRef, useEffect } from "react";
-import { Stars, Line, Html } from "@react-three/drei";
+import { Line, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Planet from "../Planet";
 import Moons from "./Moons";
+import AnimatedStarfield from "./AnimatedStarfield";
 import { PLANETS } from "./utils/constants";
 import { useGalaxyStore } from "../../state/galaxyStore";
 
@@ -120,9 +121,8 @@ export default function SolarSystem() {
       {/* Central Sun at origin with warm emissive glow and soft pulse */}
       <Sun />
 
-      <Stars radius={120} depth={60} count={4000} factor={4.0} fade speed={0.0003} />
-      <Stars radius={80} depth={40} count={2000} factor={2.5} fade speed={-0.0002} />
-      <Stars radius={150} depth={80} count={1500} factor={6.0} fade speed={0.0001} />
+      {/* Animated starfield with useFrame rotation */}
+      <AnimatedStarfield />
 
       {/* Lights and fog */}
       <ambientLight intensity={0.3} color="#f3c77b" />

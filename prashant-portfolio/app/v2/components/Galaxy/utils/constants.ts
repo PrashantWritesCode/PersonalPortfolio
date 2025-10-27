@@ -50,3 +50,113 @@ export const MOONS: Record<string, MoonConfig[]> = {
     { name: "Miranda", radius: 1.6, speed: 1.5, color: "#a7c7e7", size: 0.1 },
   ],
 };
+
+// Tech Stack Moons - Color-coded by category
+type TechCategory = "frontend" | "backend" | "cloud" | "database" | "tool";
+type TechMoon = { 
+  name: string; 
+  category: TechCategory; 
+  radius: number; 
+  speed: number; 
+  size: number;
+};
+
+const TECH_COLORS: Record<TechCategory, string> = {
+  frontend: "#61dafb",  // Blue (React-inspired)
+  backend: "#ff6b35",   // Orange
+  cloud: "#a78bfa",     // Purple
+  database: "#4ade80",  // Green
+  tool: "#fbbf24",      // Yellow/Amber
+};
+
+export const TECH_MOONS: Record<string, TechMoon[]> = {
+  Mercury: [
+    { name: "React", category: "frontend", radius: 1.0, speed: 1.8, size: 0.15 },
+    { name: "TypeScript", category: "frontend", radius: 1.3, speed: 1.2, size: 0.18 },
+    { name: "Vite", category: "tool", radius: 1.6, speed: 1.5, size: 0.15 },
+    { name: "Tailwind", category: "frontend", radius: 1.9, speed: 1.0, size: 0.16 },
+  ],
+  Venus: [
+    { name: "React", category: "frontend", radius: 1.2, speed: 1.6, size: 0.18 },
+    { name: "Storybook", category: "tool", radius: 1.5, speed: 1.3, size: 0.16 },
+    { name: "Figma", category: "tool", radius: 1.8, speed: 1.0, size: 0.17 },
+  ],
+  Earth: [
+    { name: "React", category: "frontend", radius: 1.4, speed: 1.8, size: 0.2 },
+    { name: "Node.js", category: "backend", radius: 1.8, speed: 1.4, size: 0.19 },
+    { name: ".NET", category: "backend", radius: 2.2, speed: 1.1, size: 0.2 },
+    { name: "PostgreSQL", category: "database", radius: 2.6, speed: 0.9, size: 0.18 },
+    { name: "Redis", category: "database", radius: 3.0, speed: 0.7, size: 0.16 },
+    { name: "Docker", category: "tool", radius: 3.4, speed: 0.6, size: 0.17 },
+  ],
+  Mars: [
+    { name: "Three.js", category: "frontend", radius: 1.3, speed: 1.7, size: 0.18 },
+    { name: "WebGL", category: "frontend", radius: 1.7, speed: 1.3, size: 0.17 },
+    { name: "TensorFlow", category: "tool", radius: 2.1, speed: 1.0, size: 0.19 },
+    { name: "Next.js", category: "frontend", radius: 2.5, speed: 0.8, size: 0.2 },
+  ],
+  Jupiter: [
+    { name: "Kubernetes", category: "cloud", radius: 2.2, speed: 1.5, size: 0.22 },
+    { name: "Azure", category: "cloud", radius: 2.7, speed: 1.2, size: 0.23 },
+    { name: "gRPC", category: "backend", radius: 3.2, speed: 1.0, size: 0.2 },
+    { name: ".NET Core", category: "backend", radius: 3.7, speed: 0.8, size: 0.21 },
+    { name: "RabbitMQ", category: "tool", radius: 4.2, speed: 0.7, size: 0.19 },
+  ],
+  Saturn: [
+    { name: "TypeScript", category: "frontend", radius: 1.8, speed: 1.6, size: 0.2 },
+    { name: "DI Container", category: "tool", radius: 2.2, speed: 1.3, size: 0.18 },
+    { name: "Monorepo", category: "tool", radius: 2.6, speed: 1.0, size: 0.19 },
+    { name: "Turborepo", category: "tool", radius: 3.0, speed: 0.8, size: 0.2 },
+  ],
+  Uranus: [
+    { name: "Svelte", category: "frontend", radius: 1.5, speed: 1.7, size: 0.2 },
+    { name: "WebAssembly", category: "tool", radius: 1.9, speed: 1.3, size: 0.19 },
+    { name: "Rust", category: "backend", radius: 2.3, speed: 1.0, size: 0.21 },
+    { name: "GraphQL", category: "backend", radius: 2.7, speed: 0.8, size: 0.18 },
+  ],
+};
+
+export function getTechColor(category: TechCategory): string {
+  return TECH_COLORS[category];
+}
+
+// Achievement Constellations - Coordinates for star patterns
+export const CONSTELLATION_PATTERNS = {
+  innovator: [
+    new THREE.Vector3(-25, 15, -150),
+    new THREE.Vector3(-18, 22, -150),
+    new THREE.Vector3(-12, 18, -150),
+    new THREE.Vector3(-20, 10, -150),
+  ],
+  architect: [
+    new THREE.Vector3(20, 20, -150),
+    new THREE.Vector3(28, 25, -150),
+    new THREE.Vector3(25, 15, -150),
+    new THREE.Vector3(32, 18, -150),
+    new THREE.Vector3(22, 12, -150),
+  ],
+  visionary: [
+    new THREE.Vector3(-5, 30, -150),
+    new THREE.Vector3(0, 35, -150),
+    new THREE.Vector3(5, 32, -150),
+    new THREE.Vector3(2, 28, -150),
+    new THREE.Vector3(-3, 25, -150),
+  ],
+} as const;
+
+// 🎬 Guided Tour Camera Path
+// Smooth Bézier-like path through solar system
+// Duration: ~15 seconds with easeInOutCubic
+export const GUIDED_TOUR_PATH = [
+  new THREE.Vector3(0, 50, 80),    // Far overview - entry point
+  new THREE.Vector3(-30, 35, 60),  // Sweep left
+  new THREE.Vector3(-40, 25, 40),  // Descend
+  new THREE.Vector3(-20, 15, 20),  // Move inward
+  new THREE.Vector3(0, 12, 15),    // Approach center
+  new THREE.Vector3(20, 10, 10),   // Pass by inner planets
+  new THREE.Vector3(30, 8, 5),     // Near Sun approach
+  new THREE.Vector3(15, 6, 8),     // Final position - near Sun, slight angle
+] as const;
+
+export const GUIDED_TOUR_DURATION = 15000; // 15 seconds
+export const GUIDED_TOUR_STORAGE_KEY = "portfolioGuidedTourDone";

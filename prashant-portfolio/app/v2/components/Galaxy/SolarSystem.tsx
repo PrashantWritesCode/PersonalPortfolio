@@ -6,6 +6,8 @@ import * as THREE from "three";
 import Planet from "../Planet";
 import Moons from "./Moons";
 import AnimatedStarfield from "./AnimatedStarfield";
+import AchievementConstellations from "./AchievementConstellations";
+import { audioManager } from "./utils/audioManager";
 import { PLANETS } from "./utils/constants";
 import { useGalaxyStore } from "../../state/galaxyStore";
 
@@ -83,6 +85,7 @@ function OrbitingPlanet({
         onPointerOver={(e) => {
           e.stopPropagation();
           setHovered(cfg.name, { x: e.clientX, y: e.clientY });
+          audioManager.playHover(); // 🎶 Soft chime on hover
         }}
         onPointerMove={(e) => {
           e.stopPropagation();
@@ -95,6 +98,7 @@ function OrbitingPlanet({
         onClick={(e) => {
           e.stopPropagation();
           selectPlanet(cfg.name);
+          audioManager.playClick(); // 🎶 Whoosh on selection
         }}
       >
         <Planet color={cfg.color} size={cfg.size} glowBoost={glowBoost} scaleTarget={scaleTarget}>
@@ -123,6 +127,9 @@ export default function SolarSystem() {
 
       {/* Animated starfield with useFrame rotation */}
       <AnimatedStarfield />
+
+      {/* Achievement Constellations - revealed as user explores */}
+      <AchievementConstellations />
 
       {/* Lights and fog */}
       <ambientLight intensity={0.3} color="#f3c77b" />

@@ -12,6 +12,7 @@ export default function CameraController() {
   const isReturning = useGalaxyStore((s) => s.isReturning);
   const completeReturn = useGalaxyStore((s) => s.completeReturn);
   const planetRefs = useGalaxyStore((s) => s.planetRefs);
+  const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
 
   const entryTime = useRef(0);
   const hasSettled = useRef(false);
@@ -22,6 +23,9 @@ export default function CameraController() {
   // Precomputed in constants; keeping logic here if later needed
 
   useFrame((_, delta) => {
+    // 🎬 Skip all camera logic during guided tour
+    if (guidedTourActive) return;
+
     entryTime.current += delta;
 
     // Intro glide
@@ -93,8 +97,8 @@ export default function CameraController() {
       const ideal = fovToDistance(p.size, fovDeg, 0.7);
       const orbitRadius = THREE.MathUtils.clamp(ideal, 5, 8); // fixed radius (zoom distance)
 
-      // advance orbit very slowly to avoid dizziness
-      const speed = 0.007; // rad/sec (between 0.005–0.01)
+      // advance orbit slowly for subtle cinematic effect (0.003 rad/sec)
+      const speed = 0.003;
       cameraOrbitAngle.current += delta * speed;
 
       const targetCam = new THREE.Vector3(

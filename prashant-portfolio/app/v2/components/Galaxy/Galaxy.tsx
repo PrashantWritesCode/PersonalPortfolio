@@ -7,6 +7,8 @@ import SolarSystem from "./SolarSystem";
 import CameraController from "./CameraController";
 import GuidedTour from "./GuidedTour";
 import PlanetDetail from "../PlanetDetail";
+import SunIdentityModal from "./SunIdentityModal";
+import BuilderJournalModal from "./BuilderJournalModal";
 import GalaxyUI from "./GalaxyUI";
 import { useGalaxyStore } from "../../state/galaxyStore";
 import { audioManager } from "./utils/audioManager";
@@ -26,9 +28,19 @@ function AudioController() {
   useEffect(() => {
     // Initialize audio on mount
     audioManager.initialize();
-    
+    // Start on first user interaction to satisfy autoplay policies
+    const onFirstInteract = () => {
+      audioManager.start();
+      window.removeEventListener("pointerdown", onFirstInteract);
+      window.removeEventListener("keydown", onFirstInteract);
+    };
+    window.addEventListener("pointerdown", onFirstInteract);
+    window.addEventListener("keydown", onFirstInteract);
+
     return () => {
       audioManager.cleanup();
+      window.removeEventListener("pointerdown", onFirstInteract);
+      window.removeEventListener("keydown", onFirstInteract);
     };
   }, []);
 
@@ -107,7 +119,9 @@ const Galaxy = () => {
         )}
       </Canvas>
 
-      <PlanetDetail />
+  <PlanetDetail />
+  <SunIdentityModal />
+  <BuilderJournalModal />
       <GalaxyUI />
     </main>
   );

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Line, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -50,6 +50,8 @@ function Constellation({
   opacity: number;
 }) {
   const [twinkle, setTwinkle] = useState(1);
+  const animatedGeom = useRef<THREE.BufferGeometry>(null);
+  const drawStartedAt = useRef<number | null>(null);
 
   // Gentle twinkling effect using sine wave
   useFrame(({ clock }) => {
@@ -95,12 +97,69 @@ function Constellation({
 
   const finalLineOpacity = Math.min(opacity * 0.3 * twinkle, 0.3);
 
+  // Animated draw line (THREE.Line) using drawRange
+  const animatedLine = useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    const positions = new Float32Array(linePoints.length * 3);
+    linePoints.forEach((p, i) => {
+      positions[i * 3] = p.x;
+      positions[i * 3 + 1] = p.y;
+      positions[i * 3 + 2] = p.z;
+    });
+    geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geom.setDrawRange(0, 2); // start minimal
+    const mat = new THREE.LineBasicMaterial({
+      color: config.color,
+      transparent: true,
+      opacity: 0.0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const line = new THREE.Line(geom, mat);
+    return { geom, line, mat };
+  }, [linePoints, config.color]);
+
+  const animatedMatRef = useRef<THREE.LineBasicMaterial | null>(null);
+
+  // Kick off draw animation once constellation becomes visible
+  useEffect(() => {
+    // link the geometry ref for drawRange updates
+    animatedGeom.current = animatedLine.geom;
+    animatedMatRef.current = animatedLine.mat;
+  }, [animatedLine]);
+
+  useFrame(({ clock }) => {
+    if (!animatedGeom.current) return;
+    const geom = animatedGeom.current;
+    if (opacity <= 0.01) {
+      // reset if hidden
+      drawStartedAt.current = null;
+      geom.setDrawRange(0, 2);
+      return;
+    }
+    if (drawStartedAt.current == null) {
+      drawStartedAt.current = clock.elapsedTime;
+    }
+    const elapsed = clock.elapsedTime - drawStartedAt.current;
+    const duration = 4.0; // 4 seconds
+    const progress = Math.min(elapsed / duration, 1);
+    // EaseOutCubic for drawing
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const totalVertices = geom.getAttribute("position").count;
+    const drawVertices = Math.max(2, Math.floor(totalVertices * eased));
+    geom.setDrawRange(0, drawVertices);
+    // update material opacity softly
+    if (animatedMatRef.current) {
+      animatedMatRef.current.opacity = Math.min(opacity * 0.85, 0.9) * (0.6 + 0.4 * twinkle);
+    }
+  });
+
   return (
     <group rotation={[0.2, 0.3, 0]}>
       {/* Star points */}
       <points geometry={starGeometry} material={starMaterial} />
 
-      {/* Connecting lines */}
+      {/* Faint static glow line (fat line via drei) */}
       <Line
         points={linePoints}
         color={config.color}
@@ -110,6 +169,9 @@ function Constellation({
         blending={THREE.AdditiveBlending}
         depthWrite={false}
       />
+
+      {/* Animated draw overlay using THREE.Line with drawRange */}
+      <primitive object={animatedLine.line} />
 
       {/* Achievement label (only when fully visible) */}
       {opacity > 0.8 && (

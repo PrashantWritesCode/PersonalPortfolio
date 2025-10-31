@@ -92,19 +92,26 @@ class AudioManager {
    */
   updateAmbience(distanceToSun: number) {
     if (!this.isInitialized || this.isMuted) return;
+    let targetTrack: AmbienceTrack = this.currentTrack;
 
-    let targetTrack: AmbienceTrack;
+    // Scaled thresholds to this scene's size
+    // Enter/exit with hysteresis to prevent rapid toggling
+    const NEAR_ENTER = 12; // enter nearSun when closer than 12
+    const NEAR_EXIT = 14;  // exit nearSun when farther than 14
+    const DEEP_ENTER = 20; // enter deep when farther than 20
+    const DEEP_EXIT = 18;  // exit deep when closer than 18
 
-    // Define zones based on distance
-    if (distanceToSun < 15) {
-      targetTrack = "nearSun";
-    } else if (distanceToSun > 40) {
-      targetTrack = "deep";
+    if (this.currentTrack === "nearSun") {
+      if (distanceToSun > NEAR_EXIT) targetTrack = "distant";
+    } else if (this.currentTrack === "deep") {
+      if (distanceToSun < DEEP_EXIT) targetTrack = "distant";
     } else {
-      targetTrack = "distant";
+      // currently on distant, evaluate entering zones
+      if (distanceToSun < NEAR_ENTER) targetTrack = "nearSun";
+      else if (distanceToSun > DEEP_ENTER) targetTrack = "deep";
+      else targetTrack = "distant";
     }
 
-    // Cross-fade if track changed
     if (targetTrack !== this.currentTrack) {
       this.crossFade(this.currentTrack, targetTrack);
       this.currentTrack = targetTrack;

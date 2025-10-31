@@ -1,6 +1,7 @@
 "use client";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { useGalaxyStore } from "../../state/galaxyStore";
 import {
@@ -27,9 +28,23 @@ export default function GuidedTour() {
   const { camera } = useThree();
   const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
   const completeGuidedTour = useGalaxyStore((s) => s.completeGuidedTour);
+  const planetRefs = useGalaxyStore((s) => s.planetRefs);
 
   const startTimeRef = useRef<number | null>(null);
   const [nearbyPlanet, setNearbyPlanet] = useState<string | null>(null);
+  const [labelVisible, setLabelVisible] = useState(false);
+  const labelTimer = useRef<number | null>(null);
+
+  // Planet messages (customize freely)
+  const PLANET_MESSAGES: Record<string, string> = useMemo(() => ({
+    Mercury: "IION — My first SaaS product",
+    Venus: "HES — Healthcare Engagement Suite",
+    Earth: "Sanatan GPT — Sanskritic AI",
+    Mars: "Innovation Lab — 3D/A.I. experiments",
+    Jupiter: "Enterprise Architect — Cloud-scale",
+    Saturn: "Framework Maestro — Modular systems",
+    Uranus: "Unconventional Edge — WASM explorations",
+  }), []);
 
   // Ease-in-out cubic function
   const easeInOutCubic = (t: number): number => {
@@ -48,23 +63,20 @@ export default function GuidedTour() {
     return getPositionOnPath(lookAheadT);
   };
 
-  // Detect nearby planets for label display
+  // Detect nearby planets for label display using live refs
   const detectNearbyPlanet = (cameraPos: THREE.Vector3) => {
-    const planets = [
-      { name: "Mercury", pos: new THREE.Vector3(5, 0, 0) },
-      { name: "Venus", pos: new THREE.Vector3(8, 0, 0) },
-      { name: "Earth", pos: new THREE.Vector3(12, 0, 0) },
-      { name: "Mars", pos: new THREE.Vector3(16, 0, 0) },
-      { name: "Jupiter", pos: new THREE.Vector3(24, 0, 0) },
-      { name: "Saturn", pos: new THREE.Vector3(32, 0, 0) },
-      { name: "Uranus", pos: new THREE.Vector3(40, 0, 0) },
-    ];
-
-    for (const planet of planets) {
-      const distance = cameraPos.distanceTo(planet.pos);
-      if (distance < 8) {
-        return planet.name;
+    let nearest: { name: string; dist: number; pos: THREE.Vector3 } | null = null;
+    for (const [name, ref] of Object.entries(planetRefs)) {
+      if (!ref) continue;
+      const p = new THREE.Vector3();
+      ref.getWorldPosition(p);
+      const d = cameraPos.distanceTo(p);
+      if (!nearest || d < nearest.dist) {
+        nearest = { name, dist: d, pos: p.clone() };
       }
+    }
+    if (nearest && nearest.dist < 10) {
+      return nearest.name;
     }
     return null;
   };
@@ -90,7 +102,14 @@ export default function GuidedTour() {
 
     // Detect nearby planets
     const nearby = detectNearbyPlanet(position);
-    setNearbyPlanet(nearby);
+    if (nearby && nearby !== nearbyPlanet) {
+      setNearbyPlanet(nearby);
+      setLabelVisible(true);
+      if (labelTimer.current) window.clearTimeout(labelTimer.current);
+      labelTimer.current = window.setTimeout(() => {
+        setLabelVisible(false);
+      }, 2200);
+    }
 
     // Complete tour when finished
     if (rawProgress >= 1) {
@@ -103,19 +122,26 @@ export default function GuidedTour() {
 
   return (
     <>
-      {/* Floating planet label */}
-      {nearbyPlanet && (
-        <group>
-          <mesh position={[0, 5, 0]}>
-            <planeGeometry args={[4, 1]} />
-            <meshBasicMaterial
-              color="#f7d78a"
-              transparent
-              opacity={0.8}
-              depthWrite={false}
-            />
-          </mesh>
-        </group>
+      {/* Floating planet label near the planet */}
+      {nearbyPlanet && planetRefs[nearbyPlanet] && (
+        <Html
+          center
+          position={(() => { const v = new THREE.Vector3(); planetRefs[nearbyPlanet]!.getWorldPosition(v); v.y += 1.4; return v; })()}
+          style={{ pointerEvents: "none" }}
+        >
+          <div
+            className="px-3 py-1.5 rounded-lg border text-sm font-medium whitespace-nowrap backdrop-blur-sm transition"
+            style={{
+              borderColor: "#f3c77b",
+              color: "#f3c77b",
+              background: `rgba(10,10,10,${labelVisible ? 0.75 : 0.35})`,
+              boxShadow: `0 0 12px #f3c77b60`,
+              opacity: labelVisible ? 1 : 0,
+            }}
+          >
+            {PLANET_MESSAGES[nearbyPlanet] ?? nearbyPlanet}
+          </div>
+        </Html>
       )}
     </>
   );

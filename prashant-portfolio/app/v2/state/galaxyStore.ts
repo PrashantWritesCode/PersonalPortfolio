@@ -12,6 +12,8 @@ type GalaxyState = {
   visitedPlanets: Set<string>;
   guidedTourActive: boolean;
   guidedTourCompleted: boolean;
+  sunModalOpen: boolean;
+  journalModalOpen: boolean;
   setHovered: (name: string, pointer?: Pointer) => void;
   clearHovered: () => void;
   setPointer: (pointer: Pointer) => void;
@@ -23,6 +25,10 @@ type GalaxyState = {
   startGuidedTour: () => void;
   skipGuidedTour: () => void;
   completeGuidedTour: () => void;
+  openSunModal: () => void;
+  closeSunModal: () => void;
+  openJournalModal: () => void;
+  closeJournalModal: () => void;
 };
 
 export const useGalaxyStore = create<GalaxyState>((set) => ({
@@ -34,6 +40,8 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   visitedPlanets: new Set<string>(),
   guidedTourActive: false,
   guidedTourCompleted: false,
+  sunModalOpen: false,
+  journalModalOpen: false,
   setHovered: (name, pointer) => set({ hoveredName: name, pointer: pointer ?? null }),
   clearHovered: () => set({ hoveredName: null }),
   setPointer: (pointer) => set({ pointer }),
@@ -48,4 +56,8 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   startGuidedTour: () => set({ guidedTourActive: true, guidedTourCompleted: false }),
   skipGuidedTour: () => set({ guidedTourActive: false, guidedTourCompleted: true }),
   completeGuidedTour: () => set({ guidedTourActive: false, guidedTourCompleted: true }),
+  openSunModal: () => set({ sunModalOpen: true }),
+  closeSunModal: () => set({ sunModalOpen: false }),
+  openJournalModal: () => set({ journalModalOpen: true }),
+  closeJournalModal: () => set({ journalModalOpen: false }),
 }));

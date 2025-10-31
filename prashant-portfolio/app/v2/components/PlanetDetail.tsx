@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useGalaxyStore } from "../state/galaxyStore";
 
@@ -12,6 +13,7 @@ type ProjectData = {
   liveUrl?: string;
   githubUrl?: string;
   highlights: string[];
+  media?: { src: string; alt?: string }[];
 };
 
 const PROJECTS: Record<string, ProjectData> = {
@@ -48,6 +50,10 @@ const PROJECTS: Record<string, ProjectData> = {
     stack: ["React", "Node.js", ".NET", "PostgreSQL", "Redis", "Docker"],
     liveUrl: "https://platform.demo",
     githubUrl: "https://github.com/demo/platform",
+    media: [
+      { src: "/projects/earth/preview-1.jpg", alt: "Platform dashboard" },
+      { src: "/projects/earth/preview-2.gif", alt: "Realtime collaboration" },
+    ],
     highlights: [
       "99.9% uptime SLA",
       "Multi-tenant architecture",
@@ -61,6 +67,9 @@ const PROJECTS: Record<string, ProjectData> = {
     stack: ["Three.js", "WebGL", "TensorFlow.js", "Next.js"],
     liveUrl: "https://innovation-lab.demo",
     githubUrl: "https://github.com/demo/innovation-lab",
+    media: [
+      { src: "/projects/mars/preview-1.gif", alt: "3D interaction demo" },
+    ],
     highlights: [
       "3D interactive experiences",
       "AI-powered features",
@@ -117,6 +126,36 @@ function StackBadge({ tech }: { tech: string }) {
   );
 }
 
+function MediaThumb({ src, alt }: { src: string; alt: string }) {
+  const [errored, setErrored] = useState(false);
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#0f0f0f]" style={{ boxShadow: "0 0 28px rgba(243,199,123,0.12) inset" }}>
+      {!errored ? (
+        <div className="relative w-full h-40">
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 420px"
+            onError={() => setErrored(true)}
+            style={{ objectFit: "cover" }}
+            priority={false}
+          />
+        </div>
+      ) : (
+        <div
+          className="w-full h-40 flex items-center justify-center text-sm text-gray-400"
+          style={{
+            background: "radial-gradient(closest-side, rgba(243,199,123,0.08), rgba(212,154,67,0.06), transparent)",
+          }}
+        >
+          Preview coming soon
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PlanetDetail() {
   const selectedPlanet = useGalaxyStore((s) => s.selectedPlanet);
   const returnToOverview = useGalaxyStore((s) => s.returnToOverview);
@@ -135,10 +174,11 @@ export default function PlanetDetail() {
             transition={{ type: "spring", stiffness: 200, damping: 24 }}
             className="fixed top-0 right-0 h-full z-30 pointer-events-auto"
             style={{ 
-              width: "min(92vw, 420px)", 
-              background: "linear-gradient(to left, #0a0a0aF5, #0a0a0aE0)", 
+              width: "min(92vw, 460px)", 
+              background: "linear-gradient(to left, rgba(10,10,10,0.95), rgba(10,10,10,0.88))", 
               backdropFilter: "blur(16px)",
-              borderLeft: "1px solid #2a2a2a"
+              borderLeft: "1px solid #2a2a2a",
+              boxShadow: "0 0 60px rgba(243,199,123,0.14)"
             }}
           >
             <div className="h-full flex flex-col">
@@ -161,6 +201,18 @@ export default function PlanetDetail() {
 
               {/* Content - Scrollable */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Media Previews */}
+                {project.media && project.media.length > 0 && (
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wide text-[#d49a43] mb-3 font-semibold">Preview</h4>
+                    <div className="grid grid-cols-1 gap-3">
+                      {project.media.slice(0, 2).map((m, idx) => (
+                        <MediaThumb key={idx} src={m.src} alt={m.alt ?? project.name} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Description */}
                 <div>
                   <h4 className="text-xs uppercase tracking-wide text-[#d49a43] mb-2 font-semibold">Overview</h4>

@@ -7,6 +7,7 @@ import Planet from "../Planet";
 import Moons from "./Moons";
 import AnimatedStarfield from "./AnimatedStarfield";
 import AchievementConstellations from "./AchievementConstellations";
+import Comet from "./Comet";
 import { audioManager } from "./utils/audioManager";
 import { PLANETS } from "./utils/constants";
 import { useGalaxyStore } from "../../state/galaxyStore";
@@ -78,25 +79,31 @@ function OrbitingPlanet({
   const scaleTarget = isHovered ? 1.05 : 1;
   const glowBoost = isHovered ? 0.25 : 0;
 
+  const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
+
   return (
     <group ref={orbitGroupRef}>
       <group
         ref={planetGroupRef}
         onPointerOver={(e) => {
           e.stopPropagation();
+          if (guidedTourActive) return;
           setHovered(cfg.name, { x: e.clientX, y: e.clientY });
           audioManager.playHover(); // 🎶 Soft chime on hover
         }}
         onPointerMove={(e) => {
           e.stopPropagation();
+          if (guidedTourActive) return;
           setPointer({ x: e.clientX, y: e.clientY });
         }}
         onPointerOut={(e) => {
           e.stopPropagation();
+          if (guidedTourActive) return;
           clearHovered();
         }}
         onClick={(e) => {
           e.stopPropagation();
+          if (guidedTourActive) return;
           selectPlanet(cfg.name);
           audioManager.playClick(); // 🎶 Whoosh on selection
         }}
@@ -131,6 +138,9 @@ export default function SolarSystem() {
       {/* Achievement Constellations - revealed as user explores */}
       <AchievementConstellations />
 
+  {/* Distant comet leading to Builder's Journal */}
+  <Comet />
+
       {/* Lights and fog */}
       <ambientLight intensity={0.3} color="#f3c77b" />
       <directionalLight position={[10, 10, 5]} intensity={0.8} color="#f3c77b" />
@@ -162,6 +172,7 @@ function Sun() {
   const lightRef = useRef<THREE.PointLight>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
   const t = useRef(0);
+  const openSunModal = useGalaxyStore((s) => s.openSunModal);
 
   // Choose a size ~3x Earth to feel dominant but not occlude inner orbit
   const radius = 2.6;
@@ -191,7 +202,7 @@ function Sun() {
   });
 
   return (
-    <group position={[0, 0, 0]}>      
+    <group position={[0, 0, 0]} onClick={(e) => { e.stopPropagation(); openSunModal(); }}>
       {/* Emissive core */}
       <mesh ref={coreRef}>
         <sphereGeometry args={[radius, 64, 64]} />

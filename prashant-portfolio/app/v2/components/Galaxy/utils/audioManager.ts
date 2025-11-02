@@ -178,6 +178,40 @@ class AudioManager {
   }
 
   /**
+   * Reduce ambient volume for idle mode (smooth fade to 40%)
+   */
+  reduceVolume() {
+    Object.values(this.tracks).forEach((track) => {
+      if (track && track.playing()) {
+        track.fade(track.volume(), 0.08, 1500); // Fade to 40% of normal over 1.5s
+      }
+    });
+  }
+
+  /**
+   * Restore ambient volume after idle mode
+   */
+  restoreVolume() {
+    Object.values(this.tracks).forEach((track) => {
+      if (track && track.playing()) {
+        const targetVolume = 0.2; // Normal ambient volume
+        track.fade(track.volume(), targetVolume, 1500); // Fade back over 1.5s
+      }
+    });
+  }
+
+  /**
+   * Graceful fadeout on exit (faster than idle, goes to 0)
+   */
+  fadeOutOnExit() {
+    Object.values(this.tracks).forEach((track) => {
+      if (track && track.playing()) {
+        track.fade(track.volume(), 0, 800); // Fade to silence over 0.8s
+      }
+    });
+  }
+
+  /**
    * Stop all audio and cleanup
    */
   cleanup() {

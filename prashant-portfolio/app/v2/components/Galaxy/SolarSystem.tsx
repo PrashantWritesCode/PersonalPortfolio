@@ -8,6 +8,8 @@ import Moons from "./Moons";
 import AnimatedStarfield from "./AnimatedStarfield";
 import AchievementConstellations from "./AchievementConstellations";
 import Comet from "./Comet";
+import EnergyRipple from "./emotion/EnergyRipple";
+import BuilderTimeline from "./emotion/BuilderTimeline";
 import { audioManager } from "./utils/audioManager";
 import { PLANETS } from "./utils/constants";
 import { useGalaxyStore } from "../../state/galaxyStore";
@@ -55,6 +57,7 @@ function OrbitingPlanet({
   const setHovered = useGalaxyStore((s) => s.setHovered);
   const clearHovered = useGalaxyStore((s) => s.clearHovered);
   const setPointer = useGalaxyStore((s) => s.setPointer);
+  const triggerRipple = useGalaxyStore((s) => s.triggerRipple);
 
   useFrame((_, delta) => {
     angleRef.current += delta * cfg.speed;
@@ -106,6 +109,12 @@ function OrbitingPlanet({
           if (guidedTourActive) return;
           selectPlanet(cfg.name);
           audioManager.playClick(); // 🎶 Whoosh on selection
+          // Trigger energy ripple at planet's world position
+          if (planetGroupRef.current) {
+            const worldPos = new THREE.Vector3();
+            planetGroupRef.current.getWorldPosition(worldPos);
+            triggerRipple(worldPos);
+          }
         }}
       >
         <Planet color={cfg.color} size={cfg.size} glowBoost={glowBoost} scaleTarget={scaleTarget}>
@@ -138,10 +147,14 @@ export default function SolarSystem() {
       {/* Achievement Constellations - revealed as user explores */}
       <AchievementConstellations />
 
-  {/* Distant comet leading to Builder's Journal */}
-  <Comet />
+      {/* Distant comet leading to Builder's Journal */}
+      <Comet />
 
-      {/* Lights and fog */}
+      {/* Timeline orbit showing career milestones */}
+      <BuilderTimeline />
+
+      {/* Energy ripple effects on planet clicks */}
+      <EnergyRipple />      {/* Lights and fog */}
       <ambientLight intensity={0.3} color="#f3c77b" />
       <directionalLight position={[10, 10, 5]} intensity={0.8} color="#f3c77b" />
       <pointLight position={[15, 8, 10]} intensity={0.6} color="#d4af37" distance={25} decay={1.8} />

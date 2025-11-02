@@ -11,6 +11,8 @@ export default function GalaxyUI() {
   const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
   const guidedTourCompleted = useGalaxyStore((s) => s.guidedTourCompleted);
   const skipGuidedTour = useGalaxyStore((s) => s.skipGuidedTour);
+  const isIdle = useGalaxyStore((s) => s.isIdle);
+  const activeQuote = useGalaxyStore((s) => s.activeQuote);
   const previewEnabled = isGpt5CodexPreviewEnabled();
 
   return (
@@ -115,6 +117,23 @@ export default function GalaxyUI() {
             </div>
           )}
         </div>
+      )}
+
+      {/* 🎶 Idle Reflection Quote Overlay */}
+      {isIdle && activeQuote && !guidedTourActive && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
+        >
+          <div className="max-w-2xl px-6 py-4 text-center">
+            <p className="text-[#f7d78a] text-lg md:text-xl leading-relaxed opacity-90" style={{ fontFamily: 'DM Serif Display, serif' }}>
+              &ldquo;{activeQuote}&rdquo;
+            </p>
+          </div>
+        </motion.div>
       )}
     </>
   );

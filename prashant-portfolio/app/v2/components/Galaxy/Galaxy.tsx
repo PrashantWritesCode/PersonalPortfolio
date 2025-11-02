@@ -10,6 +10,10 @@ import PlanetDetail from "../PlanetDetail";
 import SunIdentityModal from "./SunIdentityModal";
 import BuilderJournalModal from "./BuilderJournalModal";
 import GalaxyUI from "./GalaxyUI";
+// Emotional & Identity Layer
+import IdleReflection from "./emotion/IdleReflection";
+import ExitAnimation from "./emotion/ExitAnimation";
+import CosmicTextOverlay from "./emotion/CosmicTextOverlay";
 import { useGalaxyStore } from "../../state/galaxyStore";
 import { audioManager } from "./utils/audioManager";
 import { GUIDED_TOUR_STORAGE_KEY } from "./utils/constants";
@@ -24,6 +28,7 @@ const DEBUG_COMPOSER = false;
 function AudioController() {
   const { camera } = useThree();
   const guidedTourCompleted = useGalaxyStore((s) => s.guidedTourCompleted);
+  const isIdle = useGalaxyStore((s) => s.isIdle);
 
   useEffect(() => {
     // Initialize audio on mount
@@ -60,6 +65,15 @@ function AudioController() {
 
     return () => clearInterval(interval);
   }, [camera]);
+
+  // Reduce/restore volume based on idle state
+  useEffect(() => {
+    if (isIdle) {
+      audioManager.reduceVolume();
+    } else {
+      audioManager.restoreVolume();
+    }
+  }, [isIdle]);
 
   return null;
 }
@@ -109,6 +123,7 @@ const Galaxy = () => {
           <CameraController />
           <GuidedTour />
           <AudioController />
+          <IdleReflection />
         </Suspense>
 
         {/* EffectComposer applied on top of animated scene */}
@@ -119,10 +134,14 @@ const Galaxy = () => {
         )}
       </Canvas>
 
-  <PlanetDetail />
-  <SunIdentityModal />
-  <BuilderJournalModal />
+      <PlanetDetail />
+      <SunIdentityModal />
+      <BuilderJournalModal />
       <GalaxyUI />
+      
+      {/* Emotional & Identity Layer Overlays */}
+      <CosmicTextOverlay />
+      <ExitAnimation />
     </main>
   );
 };

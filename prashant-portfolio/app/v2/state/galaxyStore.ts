@@ -3,6 +3,11 @@ import * as THREE from "three";
 
 type Pointer = { x: number; y: number };
 
+type RippleTrigger = {
+  position: THREE.Vector3;
+  timestamp: number;
+} | null;
+
 type GalaxyState = {
   hoveredName: string | null;
   pointer: Pointer | null;
@@ -14,6 +19,12 @@ type GalaxyState = {
   guidedTourCompleted: boolean;
   sunModalOpen: boolean;
   journalModalOpen: boolean;
+  rippleTrigger: RippleTrigger;
+  isIdle: boolean;
+  activeQuote: string | null;
+  lastActivityTime: number;
+  isExiting: boolean;
+  exitMessage: string;
   setHovered: (name: string, pointer?: Pointer) => void;
   clearHovered: () => void;
   setPointer: (pointer: Pointer) => void;
@@ -29,6 +40,11 @@ type GalaxyState = {
   closeSunModal: () => void;
   openJournalModal: () => void;
   closeJournalModal: () => void;
+  triggerRipple: (position: THREE.Vector3) => void;
+  enterIdleMode: (quote: string) => void;
+  exitIdleMode: () => void;
+  recordActivity: () => void;
+  triggerExit: (message: string) => void;
 };
 
 export const useGalaxyStore = create<GalaxyState>((set) => ({
@@ -42,6 +58,12 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   guidedTourCompleted: false,
   sunModalOpen: false,
   journalModalOpen: false,
+  rippleTrigger: null,
+  isIdle: false,
+  activeQuote: null,
+  lastActivityTime: Date.now(),
+  isExiting: false,
+  exitMessage: "Thank you for exploring...",
   setHovered: (name, pointer) => set({ hoveredName: name, pointer: pointer ?? null }),
   clearHovered: () => set({ hoveredName: null }),
   setPointer: (pointer) => set({ pointer }),
@@ -60,4 +82,9 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   closeSunModal: () => set({ sunModalOpen: false }),
   openJournalModal: () => set({ journalModalOpen: true }),
   closeJournalModal: () => set({ journalModalOpen: false }),
+  triggerRipple: (position) => set({ rippleTrigger: { position: position.clone(), timestamp: Date.now() } }),
+  enterIdleMode: (quote) => set({ isIdle: true, activeQuote: quote }),
+  exitIdleMode: () => set({ isIdle: false, activeQuote: null }),
+  recordActivity: () => set({ lastActivityTime: Date.now(), isIdle: false, activeQuote: null }),
+  triggerExit: (message) => set({ isExiting: true, exitMessage: message }),
 }));

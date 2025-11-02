@@ -13,12 +13,17 @@ export default function CameraController() {
   const completeReturn = useGalaxyStore((s) => s.completeReturn);
   const planetRefs = useGalaxyStore((s) => s.planetRefs);
   const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
+  const rippleTrigger = useGalaxyStore((s) => s.rippleTrigger);
+  const isIdle = useGalaxyStore((s) => s.isIdle);
 
   const entryTime = useRef(0);
   const hasSettled = useRef(false);
   const returnStart = useRef<THREE.Vector3 | null>(null);
   const returnTimer = useRef(0);
   const cameraOrbitAngle = useRef(0); // slow orbit angle around focused planet
+  const lastRippleTimestamp = useRef(0);
+  const shakeOffset = useRef(new THREE.Vector3());
+  const idleZoomTarget = useRef(new THREE.Vector3(10, 15, 35)); // Far overview for idle
 
   // Precomputed in constants; keeping logic here if later needed
 
@@ -27,6 +32,21 @@ export default function CameraController() {
     if (guidedTourActive) return;
 
     entryTime.current += delta;
+
+    // 🌠 Camera shake on ripple trigger
+    if (rippleTrigger && rippleTrigger.timestamp !== lastRippleTimestamp.current) {
+      lastRippleTimestamp.current = rippleTrigger.timestamp;
+      // Generate random shake offset (amplitude 0.02)
+      const amplitude = 0.02;
+      shakeOffset.current.set(
+        (Math.random() - 0.5) * amplitude,
+        (Math.random() - 0.5) * amplitude,
+        (Math.random() - 0.5) * amplitude
+      );
+    }
+
+    // Decay shake offset quickly
+    shakeOffset.current.multiplyScalar(0.85);
 
     // Intro glide
     const entryDuration = 3.5;
@@ -40,6 +60,7 @@ export default function CameraController() {
         THREE.MathUtils.lerp(SYSTEM.entryPosition.z, SYSTEM.finalPosition.z, easeOut)
       );
       camera.position.lerp(current, 0.12);
+      camera.position.add(shakeOffset.current);
       camera.lookAt(SYSTEM.centerTarget);
       if (progress >= 1 && !hasSettled.current) hasSettled.current = true;
       return;
@@ -58,6 +79,7 @@ export default function CameraController() {
       const end = SYSTEM.finalPosition.clone();
       const current = returnStart.current.clone().lerp(end, easeOut);
       camera.position.copy(current);
+      camera.position.add(shakeOffset.current);
       camera.lookAt(SYSTEM.centerTarget);
       if (rProgress >= 1) {
         hasSettled.current = true;
@@ -108,12 +130,17 @@ export default function CameraController() {
       );
 
       camera.position.lerp(targetCam, 0.05);
+      camera.position.add(shakeOffset.current);
       camera.lookAt(planetPos);
       return;
     }
 
     // Static overview when idle (no hover-driven motion)
     if (hasSettled.current && !selectedPlanet && !isReturning) {
+      // 🎶 Idle zoom-out: slowly move camera further away
+      if (isIdle) {
+        camera.position.lerp(idleZoomTarget.current, 0.008); // Very slow zoom
+      }
       camera.lookAt(SYSTEM.centerTarget);
       return;
     }

@@ -1,0 +1,32 @@
+[
+  {
+    "year": "2019 – 2023",
+    "title": "B.Tech – Electronics & Communication",
+    "description": "Graduated from LDRP University with a foundation in systems, IoT, and embedded communication."
+  },
+  {
+    "year": "2023 – 2024",
+    "title": "Associate Full-Stack Developer – Amnex",
+    "description": "Worked on smart-city HES/MDM platforms integrating .NET Core APIs and Angular dashboards."
+  },
+  {
+    "year": "2024",
+    "title": "Golden Record Citizen Portal (Govt. of Maharashtra)",
+    "description": "Delivered scalable citizen portal with Redis caching and Azure integration."
+  },
+  {
+    "year": "Dec 2024 – Present",
+    "title": "Software Engineer – Radixweb",
+    "description": "Building HR automation platforms using .NET Core, Angular, and Azure."
+  },
+  {
+    "year": "2024",
+    "title": "Hackathon – FormPilot PoC",
+    "description": "Developed AI-driven Form Builder with LLM and Azure Foundry."
+  },
+  {
+    "year": "Certifications",
+    "title": "AZ-900 Certified, AZ-204 In Progress",
+    "description": "Microsoft Azure certifications showcasing cloud development expertise."
+  }
+]

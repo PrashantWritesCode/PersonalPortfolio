@@ -1,0 +1,24 @@
+[
+  { "name": "Angular", "category": "Frontend" },
+  { "name": "Kendo UI", "category": "Frontend" },
+  { "name": "TypeScript", "category": "Frontend" },
+
+  { "name": ".NET Core", "category": "Backend" },
+  { "name": "C#", "category": "Backend" },
+  { "name": "Node.js", "category": "Backend" },
+
+  { "name": "Azure Functions", "category": "Cloud" },
+  { "name": "Azure DevOps", "category": "Cloud" },
+  { "name": "Azure AI Foundry", "category": "Cloud" },
+
+  { "name": "PostgreSQL", "category": "Database" },
+  { "name": "MS SQL", "category": "Database" },
+  { "name": "Redis", "category": "Database" },
+
+  { "name": "Git", "category": "Tools" },
+  { "name": "TFS", "category": "Tools" },
+  { "name": "Postman", "category": "Tools" },
+
+  { "name": "System Design", "category": "Architecture" },
+  { "name": "SOLID Principles", "category": "Architecture" }
+]

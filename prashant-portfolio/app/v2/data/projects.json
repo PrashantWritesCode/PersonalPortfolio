@@ -1,0 +1,46 @@
+[
+  {
+    "id": "hes-mdm",
+    "name": "Smart City Meter Data Platform (HES/MDM)",
+    "description": "Developed a scalable Meter Data Management System for smart-city IoT devices. Implemented analytics dashboards, alerting, and data synchronization modules.",
+    "short": "Smart City Meter Data Platform",
+    "role": "Full-Stack Developer",
+    "year": 2024,
+    "techStack": [".NET Core", "Angular", "PostgreSQL", "Redis"],
+    "link": "https://github.com/prashantnaiker/hes-mdm",
+    "importance": 1
+  },
+  {
+    "id": "golden-record",
+    "name": "Golden Record Citizen Portal – Govt. of Maharashtra",
+    "description": "Citizen-centric portal enabling multilingual onboarding and document management. Implemented caching with Redis, PDF export, and role-based workflows.",
+    "short": "Golden Record Portal",
+    "role": "Full-Stack Developer",
+    "year": 2024,
+    "techStack": [".NET Core", "Angular", "Redis", "Azure"],
+    "link": "https://github.com/prashantnaiker/golden-record",
+    "importance": 2
+  },
+  {
+    "id": "radixweb-onboarding",
+    "name": "Smart Outsourcing & Recruitment Platform",
+    "description": "Dynamic Form Builder and onboarding workflow for Radixweb’s HR automation. Integrated Merge-Tags, NPS, and analytics dashboard.",
+    "short": "Recruitment Automation",
+    "role": "Software Engineer",
+    "year": 2025,
+    "techStack": [".NET Core", "Angular", "Kendo UI", "Azure"],
+    "link": "https://github.com/prashantnaiker/radixweb-onboarding",
+    "importance": 3
+  },
+  {
+    "id": "formpilot",
+    "name": "FormPilot (Hackathon PoC)",
+    "description": "AI-driven Form Builder that transforms natural language into JSON-based dynamic forms. Built with LLM APIs and Azure AI Foundry.",
+    "short": "AI Dynamic Form Builder",
+    "role": "Product Builder",
+    "year": 2024,
+    "techStack": [".NET Core", "LLM", "Azure Foundry", "Python"],
+    "link": "https://github.com/prashantnaiker/formpilot",
+    "importance": 4
+  }
+]

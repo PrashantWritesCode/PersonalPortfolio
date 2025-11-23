@@ -8,12 +8,23 @@ type RippleTrigger = {
   timestamp: number;
 } | null;
 
+export type PlanetMetadata = {
+  name: string;
+  size: number;
+  orbitRadius: number;
+  orbitTiltX: number;
+  orbitTiltY: number;
+  orbitTiltZ: number;
+  initialAngle: number;
+};
+
 type GalaxyState = {
   hoveredName: string | null;
   pointer: Pointer | null;
   selectedPlanet: string | null;
   isReturning: boolean;
   planetRefs: Record<string, THREE.Object3D | null>;
+  planetMetadata: Record<string, PlanetMetadata>;
   visitedPlanets: Set<string>;
   guidedTourActive: boolean;
   guidedTourCompleted: boolean;
@@ -33,6 +44,7 @@ type GalaxyState = {
   returnToOverview: () => void;
   completeReturn: () => void;
   registerPlanetRef: (name: string, ref: THREE.Object3D | null) => void;
+  registerPlanetMetadata: (name: string, metadata: PlanetMetadata) => void;
   startGuidedTour: () => void;
   skipGuidedTour: () => void;
   completeGuidedTour: () => void;
@@ -53,6 +65,7 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   selectedPlanet: null,
   isReturning: false,
   planetRefs: {},
+  planetMetadata: {},
   visitedPlanets: new Set<string>(),
   guidedTourActive: false,
   guidedTourCompleted: false,
@@ -75,6 +88,7 @@ export const useGalaxyStore = create<GalaxyState>((set) => ({
   returnToOverview: () => set({ selectedPlanet: null, isReturning: true }),
   completeReturn: () => set({ isReturning: false }),
   registerPlanetRef: (name, ref) => set((s) => ({ planetRefs: { ...s.planetRefs, [name]: ref } })),
+  registerPlanetMetadata: (name, metadata) => set((s) => ({ planetMetadata: { ...s.planetMetadata, [name]: metadata } })),
   startGuidedTour: () => set({ guidedTourActive: true, guidedTourCompleted: false }),
   skipGuidedTour: () => set({ guidedTourActive: false, guidedTourCompleted: true }),
   completeGuidedTour: () => set({ guidedTourActive: false, guidedTourCompleted: true }),

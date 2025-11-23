@@ -3,119 +3,28 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useGalaxyStore } from "../state/galaxyStore";
+import { projects } from "../data/projects";
 
 // Project data structure - each planet represents a project
 type ProjectData = {
+  id: string;
   name: string;
   tagline: string;
   description: string;
-  stack: string[];
+  techStack: string[];
   liveUrl?: string;
   githubUrl?: string;
-  highlights: string[];
+  highlights?: string[];
   media?: { src: string; alt?: string }[];
+  importance: number;
+  featured?: boolean;
 };
 
-const PROJECTS: Record<string, ProjectData> = {
-  Mercury: {
-    name: "Swift Prototyper",
-    tagline: "Lightning-fast MVP development platform",
-    description: "A rapid prototyping framework that reduces time-to-market by 70%. Built for startups and product teams who need to validate ideas quickly.",
-    stack: ["React", "TypeScript", "Vite", "TailwindCSS"],
-    liveUrl: "https://swift-proto.demo",
-    githubUrl: "https://github.com/demo/swift-proto",
-    highlights: [
-      "Component library with 50+ pre-built blocks",
-      "Automated deployment pipeline",
-      "Built-in analytics and A/B testing"
-    ]
-  },
-  Venus: {
-    name: "Design System Nexus",
-    tagline: "Beautiful, accessible component ecosystem",
-    description: "Enterprise-grade design system powering 15+ products. Ensures brand consistency while enabling rapid feature development.",
-    stack: ["React", "Storybook", "Figma", "CSS-in-JS"],
-    liveUrl: "https://design-nexus.demo",
-    githubUrl: "https://github.com/demo/design-nexus",
-    highlights: [
-      "WCAG 2.1 AA compliant",
-      "Dark mode support",
-      "Auto-generated documentation"
-    ]
-  },
-  Earth: {
-    name: "Full-Stack Platform",
-    tagline: "Sustaining digital ecosystems at scale",
-    description: "A comprehensive SaaS platform serving 100K+ users. Handles authentication, payments, real-time collaboration, and advanced analytics.",
-    stack: ["React", "Node.js", ".NET", "PostgreSQL", "Redis", "Docker"],
-    liveUrl: "https://platform.demo",
-    githubUrl: "https://github.com/demo/platform",
-    media: [
-      { src: "/projects/earth/preview-1.jpg", alt: "Platform dashboard" },
-      { src: "/projects/earth/preview-2.gif", alt: "Realtime collaboration" },
-    ],
-    highlights: [
-      "99.9% uptime SLA",
-      "Multi-tenant architecture",
-      "Real-time WebSocket sync"
-    ]
-  },
-  Mars: {
-    name: "Innovation Lab",
-    tagline: "Pioneering experimental technologies",
-    description: "Bleeding-edge experiments with AI, WebGL, and emerging web standards. A sandbox for testing tomorrow's technologies today.",
-    stack: ["Three.js", "WebGL", "TensorFlow.js", "Next.js"],
-    liveUrl: "https://innovation-lab.demo",
-    githubUrl: "https://github.com/demo/innovation-lab",
-    media: [
-      { src: "/projects/mars/preview-1.gif", alt: "3D interaction demo" },
-    ],
-    highlights: [
-      "3D interactive experiences",
-      "AI-powered features",
-      "WebGPU experiments"
-    ]
-  },
-  Jupiter: {
-    name: "Enterprise Architect",
-    tagline: "Massive-scale microservices orchestration",
-    description: "Cloud-native architecture managing 50+ microservices. Handles millions of transactions daily with automated scaling and fault tolerance.",
-    stack: ["Kubernetes", "Azure", "gRPC", ".NET Core", "RabbitMQ"],
-    liveUrl: "https://enterprise.demo",
-    githubUrl: "https://github.com/demo/enterprise",
-    highlights: [
-      "Auto-scaling infrastructure",
-      "Event-driven architecture",
-      "Distributed tracing"
-    ]
-  },
-  Saturn: {
-    name: "Framework Maestro",
-    tagline: "Structured elegance with dependency rings",
-    description: "A modular framework that brings structure to chaos. Clean architecture patterns with plug-and-play modules for rapid composition.",
-    stack: ["TypeScript", "DI Container", "Monorepo", "Turborepo"],
-    liveUrl: "https://framework.demo",
-    githubUrl: "https://github.com/demo/framework",
-    highlights: [
-      "Zero-config setup",
-      "Tree-shakable modules",
-      "Plugin ecosystem"
-    ]
-  },
-  Uranus: {
-    name: "Unconventional Edge",
-    tagline: "Revolutionary thinking, unique solutions",
-    description: "An experimental project that challenges conventions. Features inverted control flows and novel state management patterns.",
-    stack: ["Svelte", "WebAssembly", "Rust", "GraphQL"],
-    liveUrl: "https://edge.demo",
-    githubUrl: "https://github.com/demo/edge",
-    highlights: [
-      "Sub-100ms render times",
-      "Novel state patterns",
-      "WASM-powered core"
-    ]
-  },
-};
+// Convert projects array to a map keyed by name for easy lookup
+const PROJECTS: Record<string, ProjectData> = projects.reduce((acc, project) => {
+  acc[project.name] = project;
+  return acc;
+}, {} as Record<string, ProjectData>);
 
 function StackBadge({ tech }: { tech: string }) {
   return (
@@ -225,24 +134,26 @@ export default function PlanetDetail() {
                 <div>
                   <h4 className="text-xs uppercase tracking-wide text-[#d49a43] mb-3 font-semibold">Tech Stack</h4>
                   <div className="flex flex-wrap gap-2">
-                    {project.stack.map((tech) => (
+                    {project.techStack.map((tech) => (
                       <StackBadge key={tech} tech={tech} />
                     ))}
                   </div>
                 </div>
 
                 {/* Highlights */}
-                <div>
-                  <h4 className="text-xs uppercase tracking-wide text-[#d49a43] mb-3 font-semibold">Key Features</h4>
-                  <ul className="space-y-2">
-                    {project.highlights.map((highlight, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-gray-200">
-                        <span className="text-[#f3c77b] mt-0.5">▹</span>
-                        <span>{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {project.highlights && project.highlights.length > 0 && (
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wide text-[#d49a43] mb-3 font-semibold">Key Features</h4>
+                    <ul className="space-y-2">
+                      {project.highlights.map((highlight, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-200">
+                          <span className="text-[#f3c77b] mt-0.5">▹</span>
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="pt-4 space-y-3">

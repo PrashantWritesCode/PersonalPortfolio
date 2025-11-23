@@ -11,7 +11,7 @@ import Comet from "./Comet";
 import EnergyRipple from "./emotion/EnergyRipple";
 import BuilderTimeline from "./emotion/BuilderTimeline";
 import { audioManager } from "./utils/audioManager";
-import { PLANETS } from "./utils/constants";
+import { useGeneratedPlanets, useGeneratedMoons, GeneratedPlanet } from "./utils/planetGenerator";
 import { useGalaxyStore } from "../../state/galaxyStore";
 
 function OrbitRing({ radius, color, tiltX = 0, tiltY = 0, tiltZ = 0 }: { radius: number; color: string; tiltX?: number; tiltY?: number; tiltZ?: number }) {
@@ -44,10 +44,12 @@ function OrbitingPlanet({
   cfg,
   isHovered,
   isSelected,
+  moons,
 }: {
-  cfg: typeof PLANETS[number];
+  cfg: GeneratedPlanet;
   isHovered: boolean;
   isSelected: boolean;
+  moons: ReturnType<typeof useGeneratedMoons>;
 }) {
   const orbitGroupRef = useRef<THREE.Group>(null);
   const planetGroupRef = useRef<THREE.Group>(null);
@@ -74,10 +76,21 @@ function OrbitingPlanet({
   });
 
   // Register this planet's group for camera tracking in the store
+  const registerPlanetMetadata = useGalaxyStore((s) => s.registerPlanetMetadata);
+  
   useEffect(() => {
     registerPlanetRef(cfg.name, planetGroupRef.current);
+    registerPlanetMetadata(cfg.name, {
+      name: cfg.name,
+      size: cfg.size,
+      orbitRadius: cfg.orbitRadius,
+      orbitTiltX: cfg.orbitTiltX,
+      orbitTiltY: cfg.orbitTiltY,
+      orbitTiltZ: cfg.orbitTiltZ,
+      initialAngle: cfg.initialAngle,
+    });
     return () => registerPlanetRef(cfg.name, null);
-  }, [cfg.name, registerPlanetRef]);
+  }, [cfg.name, cfg.size, cfg.orbitRadius, cfg.orbitTiltX, cfg.orbitTiltY, cfg.orbitTiltZ, cfg.initialAngle, registerPlanetRef, registerPlanetMetadata]);
 
   const scaleTarget = isHovered ? 1.05 : 1;
   const glowBoost = isHovered ? 0.25 : 0;
@@ -107,6 +120,7 @@ function OrbitingPlanet({
         onClick={(e) => {
           e.stopPropagation();
           if (guidedTourActive) return;
+          console.log("CLICK handler restored:", cfg.name);
           selectPlanet(cfg.name);
           audioManager.playClick(); // 🎶 Whoosh on selection
           // Trigger energy ripple at planet's world position
@@ -125,7 +139,7 @@ function OrbitingPlanet({
             </div>
           </Html>
           {/* Render moons only when selected */}
-          {isSelected && <Moons planetName={cfg.name} planetSize={cfg.size} />}
+          {isSelected && <Moons moons={moons.get(cfg.name) || []} />}
         </Planet>
       </group>
     </group>
@@ -135,6 +149,10 @@ function OrbitingPlanet({
 export default function SolarSystem() {
   const hoveredName = useGalaxyStore((s) => s.hoveredName);
   const selectedPlanet = useGalaxyStore((s) => s.selectedPlanet);
+  
+  // 🌟 Generate planets and moons dynamically from data
+  const planets = useGeneratedPlanets();
+  const moonsMap = useGeneratedMoons(planets);
 
   return (
     <>
@@ -154,7 +172,9 @@ export default function SolarSystem() {
       <BuilderTimeline />
 
       {/* Energy ripple effects on planet clicks */}
-      <EnergyRipple />      {/* Lights and fog */}
+      <EnergyRipple />
+      
+      {/* Lights and fog */}
       <ambientLight intensity={0.3} color="#f3c77b" />
       <directionalLight position={[10, 10, 5]} intensity={0.8} color="#f3c77b" />
       <pointLight position={[15, 8, 10]} intensity={0.6} color="#d4af37" distance={25} decay={1.8} />
@@ -163,14 +183,14 @@ export default function SolarSystem() {
       <directionalLight position={[8, -6, -10]} intensity={0.2} color="#daa520" />
       <fog attach="fog" args={["#0a0a15", 18, 65]} />
 
-      {/* Orbits + planets */}
-      {PLANETS.map((p) => {
+      {/* 🌍 Dynamically generated orbits + planets from project data */}
+      {planets.map((p) => {
         const isHovered = hoveredName === p.name;
         const isSelected = selectedPlanet === p.name;
         return (
-          <React.Fragment key={p.name}>
+          <React.Fragment key={p.id}>
             <OrbitRing radius={p.orbitRadius} color={p.color} tiltX={p.orbitTiltX} tiltY={p.orbitTiltY} tiltZ={p.orbitTiltZ} />
-            <OrbitingPlanet cfg={p} isHovered={isHovered} isSelected={isSelected} />
+            <OrbitingPlanet cfg={p} isHovered={isHovered} isSelected={isSelected} moons={moonsMap} />
           </React.Fragment>
         );
       })}

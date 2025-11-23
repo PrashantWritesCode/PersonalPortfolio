@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { SYSTEM, PLANETS } from "./utils/constants";
+import { SYSTEM } from "./utils/constants";
 import { useGalaxyStore } from "../../state/galaxyStore";
 import { fovToDistance } from "./utils/helpers";
 
@@ -12,6 +12,7 @@ export default function CameraController() {
   const isReturning = useGalaxyStore((s) => s.isReturning);
   const completeReturn = useGalaxyStore((s) => s.completeReturn);
   const planetRefs = useGalaxyStore((s) => s.planetRefs);
+  const planetMetadata = useGalaxyStore((s) => s.planetMetadata);
   const guidedTourActive = useGalaxyStore((s) => s.guidedTourActive);
   const rippleTrigger = useGalaxyStore((s) => s.rippleTrigger);
   const isIdle = useGalaxyStore((s) => s.isIdle);
@@ -91,32 +92,34 @@ export default function CameraController() {
 
     // Focus selected planet (live follow + slow circular orbit around planet)
     if (selectedPlanet) {
-      const p = PLANETS.find((pp) => pp.name === selectedPlanet);
-      if (!p) return;
+      // 🌟 Get planet metadata from dynamic store
+      const planetMeta = planetMetadata[selectedPlanet];
+      if (!planetMeta) return;
 
       const ref = planetRefs[selectedPlanet];
-  const planetPos = new THREE.Vector3();
+      const planetPos = new THREE.Vector3();
 
       if (ref) {
+        // Use live world position from the planet's 3D object
         ref.getWorldPosition(planetPos);
       } else {
         // Fallback to computed position if ref missing
-        const angle = p.initialAngle;
+        const angle = planetMeta.initialAngle;
         planetPos.set(
-          Math.cos(angle) * p.orbitRadius,
+          Math.cos(angle) * planetMeta.orbitRadius,
           0,
-          Math.sin(angle) * p.orbitRadius
+          Math.sin(angle) * planetMeta.orbitRadius
         );
         const rot = new THREE.Euler(
-          (p.orbitTiltX * Math.PI) / 180,
-          (p.orbitTiltY * Math.PI) / 180,
-          (p.orbitTiltZ * Math.PI) / 180
+          (planetMeta.orbitTiltX * Math.PI) / 180,
+          (planetMeta.orbitTiltY * Math.PI) / 180,
+          (planetMeta.orbitTiltZ * Math.PI) / 180
         );
         planetPos.applyEuler(rot);
       }
 
       const fovDeg = camera instanceof THREE.PerspectiveCamera ? camera.fov : SYSTEM.optimalDistanceFovDeg;
-      const ideal = fovToDistance(p.size, fovDeg, 0.7);
+      const ideal = fovToDistance(planetMeta.size, fovDeg, 0.7);
       const orbitRadius = THREE.MathUtils.clamp(ideal, 5, 8); // fixed radius (zoom distance)
 
       // advance orbit slowly for subtle cinematic effect (0.003 rad/sec)

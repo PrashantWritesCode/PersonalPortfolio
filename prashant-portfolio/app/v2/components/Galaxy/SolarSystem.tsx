@@ -132,14 +132,30 @@ function OrbitingPlanet({
         }}
       >
         <Planet color={cfg.color} size={cfg.size} glowBoost={glowBoost} scaleTarget={scaleTarget}>
-          {/* Planet label */}
-          <Html position={[0, cfg.size + 0.45, 0]} center style={{ pointerEvents: "none" }}>
-            <div className="text-xs md:text-sm px-2 py-1 rounded-md bg-black/60 border border-[#2a2a2a] text-[#f3c77b] shadow-[0_0_12px_rgba(212,154,67,0.25)]">
+          {/* Planet label - always clickable */}
+          <Html 
+            position={[0, cfg.size + 2, 0]} 
+            center 
+            style={{ pointerEvents: "auto", cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (guidedTourActive) return;
+              console.log("CLICK handler restored (label):", cfg.name);
+              selectPlanet(cfg.name);
+              audioManager.playClick();
+              if (planetGroupRef.current) {
+                const worldPos = new THREE.Vector3();
+                planetGroupRef.current.getWorldPosition(worldPos);
+                triggerRipple(worldPos);
+              }
+            }}
+          >
+            <div className="text-sm md:text-base px-3 py-1.5 rounded-lg bg-black/80 border border-[#f3c77b]/40 text-[#f3c77b] shadow-[0_0_16px_rgba(212,154,67,0.35)] hover:bg-black/90 hover:border-[#f3c77b] hover:shadow-[0_0_24px_rgba(212,154,67,0.5)] transition-all">
               {cfg.name}
             </div>
           </Html>
           {/* Render moons only when selected */}
-          {isSelected && <Moons moons={moons.get(cfg.name) || []} />}
+          {isSelected && <Moons moons={moons.get(cfg.name) || []} planetSpeed={cfg.speed} />}
         </Planet>
       </group>
     </group>

@@ -90,6 +90,12 @@ export default function Planet({
 
   return (
     <group ref={groupRef} position={groupPosition}>
+      {/* Invisible larger hitbox for easier clicking (1.5x size) */}
+      <mesh visible={false}>
+        <sphereGeometry args={[size * 1.5, 8, 8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      
       {/* Planet */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[size, 32, 32]} />

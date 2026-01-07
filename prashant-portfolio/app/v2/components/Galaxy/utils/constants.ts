@@ -23,10 +23,10 @@ export const PLANETS: PlanetConfig[] = [
 ];
 
 export const SYSTEM = {
-  entryPosition: new THREE.Vector3(8, 12, 30),
-  finalPosition: new THREE.Vector3(8, 12, 15),
-  centerTarget: new THREE.Vector3(0, -2, 0),
-  optimalDistanceFovDeg: 55,
+  entryPosition: new THREE.Vector3(0, 50, 150), // Start slightly further out
+  finalPosition: new THREE.Vector3(0, 35, 120), // Far view showing whole system
+  centerTarget: new THREE.Vector3(0, 0, 0),
+  optimalDistanceFovDeg: 40,
 };
 
 export type MoonConfig = { name: string; radius: number; speed: number; color?: string; size?: number };

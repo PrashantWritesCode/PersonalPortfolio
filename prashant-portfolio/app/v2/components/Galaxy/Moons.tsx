@@ -13,24 +13,28 @@ import { GeneratedMoon } from "./utils/planetGenerator";
  * - #B58FFF: Cloud (Azure, Vercel, Docker)
  * - #9FFFB0: Database (PostgreSQL, MongoDB, Redis)
  * - #FFD9A6: Architecture (Zustand, etc.)
+ * Moon speed is 1.2x the parent planet's orbital speed
  */
 export default function Moons({ 
-  moons
+  moons,
+  planetSpeed = 0.05
 }: { 
   moons: GeneratedMoon[];
+  planetSpeed?: number;
 }) {
   const group = useRef<THREE.Group>(null);
   const t = useRef(0);
 
-  // Animate moons orbiting around the planet
+  // Animate moons orbiting around the planet at 1.2x planet speed
   useFrame((_, delta) => {
     t.current += delta;
     if (!group.current) return;
+    const moonSpeedMultiplier = 1.2; // Moons orbit 1.2x faster than planet
     group.current.children.forEach((child, i) => {
       const moon = moons[i];
       if (!moon) return;
-      // Calculate orbital angle with moon's initial radius offset and speed
-      const ang = moon.radius + t.current * moon.speed;
+      // Calculate orbital angle with moon's initial radius offset and speed relative to planet
+      const ang = moon.radius + t.current * planetSpeed * moonSpeedMultiplier;
       const x = Math.cos(ang) * moon.orbitRadius;
       const z = Math.sin(ang) * moon.orbitRadius;
       child.position.set(x, 0, z);

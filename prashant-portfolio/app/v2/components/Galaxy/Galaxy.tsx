@@ -106,10 +106,14 @@ const Galaxy = () => {
     <main className="relative h-screen w-screen overflow-hidden bg-black text-white">
       <TourInitializer />
       
-      <Canvas camera={{ position: [8, 12, 30], fov: 55 }}>
+      <Canvas 
+        camera={{ position: [0, 35, 120], fov: 40, near: 0.1, far: 5000 }}
+        dpr={[1, 2]} // Adaptive DPR for performance
+        gl={{ antialias: true, alpha: false }}
+      >
         {/* Deep space background - adjusted to complement Sun */}
         <color attach="background" args={["#02020a"]} />
-        <fogExp2 attach="fog" args={["#0a0a15", 0.0015]} />
+        <fogExp2 attach="fog" args={["#0a0a15", 0.0005]} />
 
         {/* Background gradient plane - subtle depth */}
         <mesh position={[0, 0, -80]} scale={[120, 120, 1]} renderOrder={-3}>

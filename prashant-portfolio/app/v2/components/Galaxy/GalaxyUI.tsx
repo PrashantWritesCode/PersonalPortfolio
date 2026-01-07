@@ -90,23 +90,35 @@ export default function GalaxyUI() {
         </div>
       )}
 
-      {/* Controls layer */}
-      {!guidedTourActive && guidedTourCompleted && (
-        <div className="pointer-events-none">
-          <motion.div
-            className="fixed left-1/2 -translate-x-1/2 bottom-12 z-20"
-            initial={{ opacity: 0, y: 8 }}
-            animate={selectedPlanet ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-            transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-            style={{ pointerEvents: selectedPlanet ? "auto" : "none" }}
+      {/* Back to Galaxy Button - Fixed, always visible when planet selected */}
+      {!guidedTourActive && selectedPlanet && (
+        <motion.div
+          className="fixed left-1/2 -translate-x-1/2 bottom-8 z-40 pointer-events-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          <button
+            onClick={() => returnToOverview?.()}
+            className="px-6 py-3 rounded-full border-2 border-[#f3c77b] bg-black/90 text-[#f3c77b] backdrop-blur-md font-semibold text-base shadow-[0_0_28px_rgba(243,199,123,0.4)] hover:shadow-[0_0_40px_rgba(243,199,123,0.6)] hover:scale-105 transition-all duration-200"
           >
-            <button
-              onClick={() => returnToOverview?.()}
-              className="pointer-events-auto px-5 py-2 rounded-full border border-[#2a2a2a] bg-black/70 text-[#f3c77b] backdrop-blur-md font-medium shadow-[0_0_24px_rgba(243,199,123,0.25)] hover:shadow-[0_0_36px_rgba(243,199,123,0.35)] transition"
-            >
-              ← Back to Galaxy
-            </button>
-          </motion.div>
+            ← Back to Galaxy
+          </button>
+        </motion.div>
+      )}
+
+      {/* Additional Controls */}
+      {!guidedTourActive && guidedTourCompleted && (
+        <div className="pointer-events-none">{/* Placeholder for future controls */}</div>
+      )}
+
+      {!guidedTourActive && guidedTourCompleted && (
+        <div className="pointer-events-none">{/* Removed duplicate back button */}</div>
+      )}
+
+      {!guidedTourActive && guidedTourCompleted && (
+        <div className="absolute inset-0 pointer-events-none">{/* Controls layer placeholder */}
 
           {previewEnabled && (
             <div className="fixed left-4 bottom-4 z-20 pointer-events-auto">

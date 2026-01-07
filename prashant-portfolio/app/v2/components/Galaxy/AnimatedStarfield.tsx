@@ -84,20 +84,20 @@ function StarLayers() {
 
   useFrame(({ clock }, delta) => {
     if (groupRef.current) {
-      // Continuous slow drift (visible within 5s)
-      groupRef.current.rotation.y += delta * 0.007;
+      // Gentle continuous rotation (visible, non-nauseating)
+      groupRef.current.rotation.y += delta * 0.0015;
 
       // Parallax shimmer for breathing effect
-      groupRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.1) * 0.05;
-      groupRef.current.rotation.z = Math.cos(clock.elapsedTime * 0.07) * 0.05;
+      groupRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.1) * 0.03;
+      groupRef.current.rotation.z = Math.cos(clock.elapsedTime * 0.07) * 0.03;
     }
 
-    // Update star materials each frame to maintain visibility
+    // Update star materials each frame to maintain visibility and twinkle
     starsRefs.current.forEach((stars, idx) => {
       if (stars && stars.material) {
         const mat = stars.material as THREE.PointsMaterial;
-        // Subtle twinkle effect
-        const baseOpacity = 0.7 + idx * 0.1;
+        // Enhanced brightness with subtle twinkle effect
+        const baseOpacity = 0.85 + idx * 0.1;
         mat.opacity = baseOpacity + Math.sin(clock.elapsedTime * 0.5 + idx) * 0.15;
       }
     });

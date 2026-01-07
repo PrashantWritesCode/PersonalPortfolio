@@ -28,11 +28,11 @@ export interface GeneratedMoon {
   category: string;
 }
 
-const BASE_RADIUS = 6;
-const SPACING = 4;
+const BASE_RADIUS = 80;
+const SPACING = 40;
 const BASE_SPEED = 0.05;
-const MIN_SIZE = 0.6;
-const MAX_SIZE = 1.5;
+const MIN_SIZE = 3.0;
+const MAX_SIZE = 8.0;
 
 /**
  * Generate planet configurations from project data
@@ -100,14 +100,14 @@ export function generateMoonsForPlanet(
     const category = skill?.category || "architecture";
     const color = CATEGORY_COLORS[category];
     
-    // Moon size between 0.2-0.3
-    const size = 0.2 + seededRandom(seed + 1) * 0.1;
+    // Moon size between 0.8-1.2
+    const size = 0.8 + seededRandom(seed + 1) * 0.4;
     
-    // Orbit radius: 1.5 base + random 0.3
-    const orbitRadius = 1.5 + moonIndex * 0.5 + seededRandom(seed + 2) * 0.3;
+    // Orbit radius: 8.0 base + random scaling
+    const orbitRadius = 8.0 + moonIndex * 2.0 + seededRandom(seed + 2) * 1.5;
     
-    // Moon orbital speed (faster than planets)
-    const speed = 1.2 + seededRandom(seed + 3) * 0.8;
+    // Moon orbital speed (1.2x planet speed)
+    const speed = 1.2;
     
     // Initial angle for moon
     const radius = seededRandom(seed + 4) * Math.PI * 2;

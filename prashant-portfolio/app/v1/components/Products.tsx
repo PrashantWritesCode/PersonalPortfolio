@@ -18,7 +18,7 @@ function ProductCard({ product }: { product: Product }) {
   const statusConfig = {
     live: { label: "Live", color: "bg-green-500/10 text-green-400 border-green-500/30" },
     development: { label: "In Development", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
-    prototype: { label: "Prototype", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
+    prototype: { label: "Prototype (Internal Hackathon)", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
   };
 
   const status = statusConfig[product.status as keyof typeof statusConfig];

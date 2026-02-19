@@ -85,41 +85,68 @@ function RadixwebPlatform() {
             <ModuleCard key={module.name} module={module} index={index} />
           ))}
         </div>
+
+        {/* Platform Hardening & AI Innovation */}
+        {data.platformHardening && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-6 pt-5 border-t border-[#D4AF37]/15"
+          >
+            <h5 className="text-sm font-semibold text-[#D4AF37]/70 uppercase tracking-wider mb-3">
+              Platform Hardening & AI Innovation
+            </h5>
+            <ul className="space-y-1.5">
+              {data.platformHardening.map((item: string, i: number) => (
+                <li key={i} className="text-[#9AA4B2] text-xs flex items-start leading-relaxed">
+                  <span className="text-[#D4AF37]/50 mr-2 mt-0.5">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
 }
 
-// Project card for Amnex
-function AmnexProjectCard({ project, index }: { project: any; index: number }) {
+// Production project card for Amnex — strong styling
+function AmnexProductionCard({ project, index }: { project: any; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -6 }}
-      className="bg-[#0F1419] border border-[#1A2332] rounded-xl p-6 transition-all duration-300 hover:border-[#D4AF37]/30 hover:shadow-xl hover:shadow-[#D4AF37]/10"
+      whileHover={{ y: -4 }}
+      className="bg-[#0F1419] border border-[#1A2332] rounded-lg p-5 transition-all duration-300 hover:border-[#D4AF37]/30 hover:shadow-lg hover:shadow-[#D4AF37]/5"
     >
-      {/* Project Header */}
-      <div className="mb-4">
-        <h4 className="text-xl font-bold text-neutral-100 mb-2">
-          {project.name}
-        </h4>
-        {project.scale && (
-          <div className="inline-block px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full mb-3">
-            <span className="text-[#D4AF37] text-xs font-semibold">
-              Scale: {project.scale}
-            </span>
-          </div>
-        )}
-        <p className="text-[#9AA4B2] text-sm leading-relaxed">
-          {project.description}
-        </p>
-      </div>
+      {/* Title */}
+      <h4 className="text-lg font-semibold text-neutral-100 mb-2">
+        {project.name}
+      </h4>
+
+      {/* Domain Badge */}
+      {project.domain && (
+        <div className="inline-block px-3 py-1 bg-[#D4AF37]/8 border border-[#D4AF37]/25 rounded-full mb-2">
+          <span className="text-[#D4AF37] text-xs font-medium">{project.domain}</span>
+        </div>
+      )}
+
+      {/* Scale Line */}
+      {project.scale && (
+        <div className="inline-block ml-2 px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full mb-2">
+          <span className="text-[#D4AF37] text-xs font-semibold">
+            Scale: {project.scale}
+          </span>
+        </div>
+      )}
 
       {/* Key Features */}
-      <ul className="space-y-1.5 mb-4">
+      <ul className="space-y-1.5 mb-4 mt-3">
         {project.keyFeatures.map((feature: string, i: number) => (
           <li key={i} className="text-[#9AA4B2] text-sm flex items-start">
             <span className="text-[#D4AF37] mr-2 mt-0.5">•</span>
@@ -147,7 +174,59 @@ function AmnexProjectCard({ project, index }: { project: any; index: number }) {
   );
 }
 
-// Amnex section
+// Early contribution card — lighter styling
+function AmnexEarlyCard({ project, index }: { project: any; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -3 }}
+      className="bg-[#0C1017] border border-[#1A2332]/60 rounded-lg p-5 transition-all duration-300 hover:border-[#D4AF37]/20 hover:shadow-md hover:shadow-[#D4AF37]/3"
+    >
+      {/* Title */}
+      <h4 className="text-base font-semibold text-neutral-200 mb-2">
+        {project.name}
+      </h4>
+
+      {/* Domain Badge */}
+      {project.domain && (
+        <div className="inline-block px-2.5 py-0.5 bg-[#D4AF37]/5 border border-[#D4AF37]/15 rounded-full mb-3">
+          <span className="text-[#D4AF37]/70 text-xs font-medium">{project.domain}</span>
+        </div>
+      )}
+
+      {/* Key Features */}
+      <ul className="space-y-1.5 mb-4">
+        {project.keyFeatures.map((feature: string, i: number) => (
+          <li key={i} className="text-[#9AA4B2]/80 text-sm flex items-start">
+            <span className="text-[#D4AF37]/50 mr-2 mt-0.5">•</span>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Tech Stack */}
+      <div className="flex flex-wrap gap-2">
+        {project.stack.map((tech: string, i: number) => (
+          <motion.span
+            key={tech}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 + i * 0.03, duration: 0.3 }}
+            className="px-2.5 py-1 bg-[#0B0F1A] border border-[#D4AF37]/25 rounded-full text-xs text-[#D4AF37]/70 font-medium"
+          >
+            {tech}
+          </motion.span>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// Amnex section — two-part structure
 function AmnexProjects() {
   const data = professionalWork.amnex;
 
@@ -168,11 +247,31 @@ function AmnexProjects() {
         <p className="text-neutral-100 text-xl font-semibold">{data.sectionTitle}</p>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.projects.map((project: any, index: number) => (
-          <AmnexProjectCard key={project.name} project={project} index={index} />
-        ))}
+      {/* Part 1: Production Systems */}
+      <div className="mb-10">
+        <h4 className="text-sm font-semibold text-[#D4AF37]/70 uppercase tracking-wider mb-4">
+          Production Systems
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {data.productionSystems.map((project: any, index: number) => (
+            <AmnexProductionCard key={project.name} project={project} index={index} />
+          ))}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-[#D4AF37]/15 mb-8" />
+
+      {/* Part 2: Early Contributions */}
+      <div>
+        <h4 className="text-sm font-semibold text-[#9AA4B2]/60 uppercase tracking-wider mb-4">
+          Early Contributions (Internship Projects)
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {data.earlyContributions.map((project: any, index: number) => (
+            <AmnexEarlyCard key={project.name} project={project} index={index} />
+          ))}
+        </div>
       </div>
     </motion.div>
   );

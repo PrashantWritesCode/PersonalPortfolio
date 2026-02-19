@@ -1,8 +1,7 @@
 "use client";
 import { journey } from "../data";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import React from "react";
+import { fadeInUp, staggerContainer } from "../lib/animations";
 
 type Milestone = {
   year: string;
@@ -10,31 +9,31 @@ type Milestone = {
   description: string;
 };
 
-function MilestoneCard({ milestone, isLeft }: { milestone: Milestone; isLeft: boolean }) {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
-  const variants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0 },
-  };
+function TimelineItem({ milestone, index }: { milestone: Milestone; index: number }) {
   return (
     <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={variants}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className={`mb-12 flex ${isLeft ? "justify-start" : "justify-end"} relative`}
+      variants={fadeInUp}
+      className="relative pl-12 pb-12 last:pb-0"
     >
-      {/* Glowing Orb */}
-  <div className="w-8 h-8 bg-linear-to-b from-[#d49a43] via-[#f3c77b] to-[#d49a43] rounded-full border-4 border-[#f3c77b] shadow-[0_0_32px_#d49a43] animate-pulse absolute left-1/2 transform -translate-x-1/2 -top-4"></div>
-      <div
-        className={`bg-[#111] p-6 rounded-2xl shadow-lg transition-transform transform hover:-translate-y-2 border border-[#222] hover:shadow-[0_0_32px_#d49a43aa] hover:border-[#d49a43] ${isLeft ? "mr-auto" : "ml-auto"} max-w-xs`}
-      >
-        <div className="flex items-center mb-2">
-          <span className="text-[#f3c77b] font-semibold text-lg mr-3 drop-shadow-[0_0_8px_#d49a43]">{milestone.year}</span>
-          <span className="text-[#d49a43] font-bold text-xl drop-shadow-[0_0_8px_#d49a43]">{milestone.title}</span>
-        </div>
-        <p className="text-gray-200 text-base md:text-lg leading-relaxed">{milestone.description}</p>
+      {/* Timeline dot */}
+      <div className="absolute left-0 top-0 w-4 h-4 rounded-full bg-amber-muted ring-4 ring-amber-muted/20" />
+      
+      {/* Timeline line */}
+      {index < journey.length - 1 && (
+        <div className="absolute left-[7px] top-4 bottom-0 w-0.5 bg-deep-border" />
+      )}
+      
+      {/* Content */}
+      <div className="bg-deep-surface border border-deep-border rounded-xl p-6 hover:border-amber-dim transition-colors duration-300">
+        <span className="text-amber-muted text-sm font-medium">
+          {milestone.year}
+        </span>
+        <h3 className="text-2xl font-semibold text-neutral-100 mt-2 mb-3">
+          {milestone.title}
+        </h3>
+        <p className="text-neutral-300 leading-relaxed">
+          {milestone.description}
+        </p>
       </div>
     </motion.div>
   );
@@ -42,20 +41,29 @@ function MilestoneCard({ milestone, isLeft }: { milestone: Milestone; isLeft: bo
 
 export default function Journey() {
   return (
-    <section className="relative py-20 bg-[#0a0a0a] text-white overflow-x-hidden">
-      <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-[#d49a43] drop-shadow-[0_0_16px_#d49a43aa]">
-        My Journey So Far
-      </h2>
-      <div className="relative flex flex-col items-center w-full max-w-4xl mx-auto">
-        {/* Vertical Glowing Line */}
-  <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-2 bg-linear-to-b from-[#d49a43] via-[#f3c77b] to-transparent shadow-[0_0_32px_#d49a43] animate-pulse pointer-events-none z-0" />
-        <div className="relative z-10 w-full">
+    <section className="relative py-32 bg-deep-bg text-neutral-100">
+      <div className="max-w-4xl mx-auto px-6">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-5xl md:text-6xl font-bold text-neutral-100 mb-16 text-center"
+        >
+          My Journey
+        </motion.h2>
+        
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          className="relative"
+        >
           {journey.map((milestone, idx) => (
-            <MilestoneCard key={milestone.year} milestone={milestone} isLeft={idx % 2 === 0} />
+            <TimelineItem key={milestone.year} milestone={milestone} index={idx} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
-

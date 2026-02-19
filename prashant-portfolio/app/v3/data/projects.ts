@@ -10,43 +10,19 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    id: "sanatan-gpt",
-    title: "Sanatan GPT",
-    tagline: "AI-powered spiritual knowledge assistant",
+    id: "writer-analytics",
+    title: "Writer Analytics",
+    tagline: "A privacy-first analytics Chrome extension for Wattpad authors.",
     description:
-      "An intelligent chatbot that provides insights from ancient Vedic texts and scriptures. Built with OpenAI's GPT models and fine-tuned on religious texts to answer spiritual queries with contextual accuracy.",
-    stack: ["Next.js", "TypeScript", "OpenAI API", "Tailwind CSS", "Vercel"],
-    liveUrl: "https://sanatan-gpt.vercel.app",
-    githubUrl: "https://github.com/PrashantWritesCode/sanatan-gpt",
-  },
-  {
-    id: "mossip-integration",
-    title: "MOSSIP Integration",
-    tagline: "Enterprise API integration platform",
-    description:
-      "A robust middleware solution for integrating legacy systems with modern cloud services. Features real-time data synchronization, error handling, and comprehensive monitoring dashboards.",
-    stack: ["Node.js", "Express", "Azure Functions", "Redis", "PostgreSQL"],
-    liveUrl: "https://mossip-demo.azurewebsites.net",
-    githubUrl: "https://github.com/PrashantWritesCode/mossip-integration",
-  },
-  {
-    id: "riverside-mvp",
-    title: "Riverside MVP",
-    tagline: "Real-time collaboration workspace",
-    description:
-      "A minimum viable product for team collaboration with video conferencing, shared whiteboards, and document editing. Built for startups looking to streamline remote work workflows.",
-    stack: ["React", "WebRTC", "Socket.io", "MongoDB", "AWS S3"],
-    liveUrl: "https://riverside-mvp.netlify.app",
-    githubUrl: "https://github.com/PrashantWritesCode/riverside-mvp",
-  },
-  {
-    id: "portfolio-galaxy",
-    title: "Portfolio Galaxy",
-    tagline: "3D interactive portfolio experience",
-    description:
-      "An immersive 3D portfolio built with React Three Fiber featuring orbital navigation, achievement constellations, and guided tours through project planets. A unique way to showcase work with narrative storytelling.",
-    stack: ["Next.js", "React Three Fiber", "Zustand", "Framer Motion", "Howler.js"],
-    liveUrl: "https://prashant-portfolio.vercel.app/v2",
-    githubUrl: "https://github.com/PrashantWritesCode/PersonalPortfolio",
+      "Writer Analytics is a Chrome extension built for Wattpad authors to understand how readers engage with their stories. It provides story-level and chapter-level insights directly inside the writing workflow, without using platform APIs or storing story content. The product is publicly published and actively used by writers on a daily basis.\n\nImpact:\n- 19+ organic users\n- 14+ weekly active users\n- Daily active usage\n- Publicly published on the Chrome Web Store",
+    stack: [
+      "TypeScript",
+      "Chrome Extension (Manifest V3)",
+      "Content Scripts",
+      "DOM Parsing",
+      "Browser Storage",
+    ],
+    liveUrl:
+      "https://chromewebstore.google.com/detail/jfpnlkcnijonciekpphgdipdmipefhjo",
   },
 ];

@@ -1,27 +1,28 @@
 @import "tailwindcss";
 
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes spin-slower {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
-
-@keyframes swirl {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.bg-conic-gradient {
-  animation: swirl 120s linear infinite;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 60s linear infinite;
-}
-.animate-spin-slower {
-  animation: spin-slower 90s linear infinite;
+@theme {
+  /* Custom Color System - Controlled Anti-Gravity Design */
+  --color-deep-bg: #0B0F14;
+  --color-deep-surface: #141920;
+  --color-deep-border: #1F2937;
+  
+  --color-amber-muted: #D4A24C;
+  --color-amber-glow: #E8B563;
+  --color-amber-dim: #8B7335;
+  
+  --color-neutral-100: #F9FAFB;
+  --color-neutral-200: #E5E7EB;
+  --color-neutral-300: #9CA3AF;
+  --color-neutral-400: #6B7280;
+  
+  /* Font Family */
+  --font-family-sans: Inter, system-ui, sans-serif;
+  
+  /* Custom Animations */
+  --animate-pulse-slow: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+}

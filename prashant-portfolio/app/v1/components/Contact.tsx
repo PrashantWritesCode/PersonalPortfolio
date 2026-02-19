@@ -67,7 +67,7 @@ export default function Contact() {
           className="flex items-center justify-center gap-6"
         >
           <a
-            href="https://github.com/prashantnaikar"
+            href="https://github.com/PrashantWritesCode"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-neutral-300 hover:text-amber-muted transition-colors"
@@ -81,7 +81,7 @@ export default function Contact() {
           <span className="text-neutral-400">•</span>
           
           <a
-            href="https://linkedin.com/in/prashant-naikar"
+            href="https://www.linkedin.com/in/prashant-naiker-64655b239"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-neutral-300 hover:text-amber-muted transition-colors"
@@ -95,7 +95,7 @@ export default function Contact() {
           <span className="text-neutral-400">•</span>
           
           <a
-            href="https://x.com/prashantnaikar"
+            href="https://x.com/heyPrashantt"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-neutral-300 hover:text-amber-muted transition-colors"

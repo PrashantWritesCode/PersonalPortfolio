@@ -4,8 +4,8 @@ import { letterReveal, subtleGlow } from "../lib/animations";
 
 export default function Hero() {
   const line1 = "Prashant Naiker";
-  const line2 = "Engineer building scalable systems";
-  const line3 = "& product-grade platforms";
+  const line2 = "Full-Stack Engineer";
+  const line3 = "Scalable systems. Product platforms.";
 
   const line1Letters = line1.split('');
   const line2Letters = line2.split('');
@@ -46,7 +46,7 @@ export default function Hero() {
           </h1>
           
           {/* Line 2 */}
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight whitespace-nowrap">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight tracking-tight whitespace-nowrap text-neutral-200">
             {line2Letters.map((letter, i) => (
               <motion.span
                 key={`line2-${i}`}
@@ -59,10 +59,10 @@ export default function Hero() {
                 {letter === ' ' ? '\u00A0' : letter}
               </motion.span>
             ))}
-          </h1>
+          </h2>
           
           {/* Line 3 */}
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight whitespace-nowrap">
+          <p className="text-3xl md:text-4xl lg:text-5xl font-medium leading-tight tracking-tight whitespace-nowrap text-neutral-300">
             {line3Letters.map((letter, i) => (
               <motion.span
                 key={`line3-${i}`}
@@ -75,7 +75,7 @@ export default function Hero() {
                 {letter === ' ' ? '\u00A0' : letter}
               </motion.span>
             ))}
-          </h1>
+          </p>
         </div>
 
         {/* Subtext with Separator Dots */}

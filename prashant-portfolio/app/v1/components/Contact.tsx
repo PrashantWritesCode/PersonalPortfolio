@@ -48,7 +48,7 @@ export default function Contact() {
           className="mb-12"
         >
           <a
-            href="mailto:prashantnaikar29@gmail.com"
+            href="mailto:prashantnaiker9@gmail.com"
             className="inline-block px-10 py-4 bg-amber-muted text-deep-bg font-semibold rounded-lg hover:bg-amber-glow transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-muted/20"
           >
             Get in Touch

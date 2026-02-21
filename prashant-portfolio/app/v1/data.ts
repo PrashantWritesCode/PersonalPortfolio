@@ -193,11 +193,18 @@ export const professionalWork = {
 
 // Skills organized by architectural layer
 export const skills = {
-  frontend: ["Angular", "React", "TypeScript", "Tailwind"],
-  backend: [".NET Core", "C#", "Spring Boot", "Node.js"],
-  cloudDevOps: ["Azure Functions", "Azure Queues", "Redis", "DevOps Pipelines"],
-  databases: ["PostgreSQL", "MS SQL"],
-  aiAutomation: ["LangChain", "Ollama", "RAG", "OpenAI API"],
+  frontend: ["Angular", "React", "TypeScript", "JavaScript", "Tailwind"],
+  backend: [".NET Core", ".NET FrameWork", "Node.js", "C#"],
+  cloudDevOps: [
+    "Azure Functions",
+    "Azure Queues",
+    "Azure DevOps",
+    "Azure Service Bus",
+    "Redis",
+    "DevOps Pipelines",
+  ],
+  databases: ["PostgreSQL", "MS SQL", "MongoDB"],
+  aiAutomation: ["Azure AI foundry", "Devin AI", "n8n"],
   architecture: [
     "Multi-tenant systems",
     "Workflow engines",
@@ -211,56 +218,26 @@ export const skills = {
 export const journey = [
   {
     year: "Aug 2023",
-    title: "Started at Amnex",
+    title: "Joined Amnex as Associate Full-Stack Developer",
     description:
-      "Joined as Associate Full-Stack Developer, building utility-scale analytics and government portal systems.",
+      "Built utility-scale analytics and government citizen platforms handling large-scale data and multilingual workflows.",
   },
   {
     year: "2024",
-    title: "Built Smart Metering & Citizen Portal",
+    title: "Delivered Smart Metering & Golden Record Systems",
     description:
-      "Delivered high-scale systems processing millions of records with real-time dashboards and multilingual support.",
+      "Engineered real-time dashboards, data pipelines, caching layers, and N-level alerting for high-volume public-sector systems.",
   },
   {
     year: "Dec 2024",
-    title: "Joined Radixweb",
+    title: "Joined Radixweb — Enterprise SaaS Engineering",
     description:
-      "Software Engineer building unified background check platform with Azure-based workflow automation.",
+      "Contributed to a multi-tenant recruitment and background-check platform with ATS integrations and Azure-based workflow orchestration.",
   },
   {
     year: "2025",
-    title: "Launched Writer Analytics & FormPilot",
+    title: "Architecting Automation & AI-Driven Workflows",
     description:
-      "Published Chrome extensions serving real users with privacy-first AI-powered automation.",
-  },
-];
-
-export const philosophy = [
-  {
-    tag: "Dharma",
-    title: "Surround yourself with beauty.",
-    subtitle: "Design, code, and life in harmony",
-    excerpt:
-      "I believe craftsmanship begins with aesthetic clarity — beautiful systems are easier to reason about and kinder to maintain.",
-    detail:
-      "In practice this means: clear code, intentional UX, and a focus on the small details that make a product feel human.",
-  },
-  {
-    tag: "Discipline",
-    title: "The only easy day was yesterday.",
-    subtitle: "Growth through steady challenge",
-    excerpt:
-      "Progress is compounding. Consistent work — even small steps — builds real capability.",
-    detail:
-      "I focus on routines: daily learning, incremental refactors, and shipping with measurable outcomes.",
-  },
-  {
-    tag: "Balance",
-    title: "Technology is Dharma in motion.",
-    subtitle: "Engineering with empathy",
-    excerpt:
-      "Tech should be an extension of human care — performant, accessible, and respectful of people's time.",
-    detail:
-      "This guides how I choose architectures, design onboarding flows, and ensure accessibility.",
+      "Introduced AI-powered form automation (FormPilot) and production log triage (FixMate) to reduce manual configuration and operational overhead.",
   },
 ];

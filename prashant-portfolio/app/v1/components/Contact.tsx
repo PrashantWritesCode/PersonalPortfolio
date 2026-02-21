@@ -9,24 +9,35 @@ export default function Contact() {
       <div className="absolute inset-0 bg-gradient-radial from-amber-muted/5 via-transparent to-transparent" />
       
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-        {/* Heading with gradient text effect */}
+        {/* Upper line */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-lg md:text-xl text-neutral-400 tracking-wide mb-3"
+        >
+          Open to
+        </motion.p>
+
+        {/* Main heading with gold accent on key words */}
         <motion.h2
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-neutral-100 via-amber-muted to-neutral-100 bg-clip-text text-transparent"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-5xl md:text-6xl font-bold mb-10"
         >
-          Let's Build Something
+          <span className="text-neutral-100">Impactful </span>
+          <span className="bg-gradient-to-r from-amber-muted to-amber-glow bg-clip-text text-transparent">Engineering roles</span>
         </motion.h2>
 
         {/* Subtext */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-xl text-neutral-300 mb-10 max-w-2xl mx-auto"
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-lg text-neutral-300 mb-12 max-w-xl mx-auto leading-relaxed"
         >
-          Available for select projects and collaborations
+          Focused on scalable architecture, enterprise integrations, and AI-enabled automation.
         </motion.p>
 
         {/* CTA Button */}
@@ -52,10 +63,10 @@ export default function Contact() {
           className="mb-8"
         >
           <a
-            href="mailto:prashantnaikar29@gmail.com"
+            href="mailto:prashantnaiker9@gmail.com"
             className="text-neutral-300 hover:text-amber-muted transition-colors text-lg"
           >
-            prashantnaikar29@gmail.com
+            prashantnaiker9@gmail.com
           </a>
         </motion.div>
 
